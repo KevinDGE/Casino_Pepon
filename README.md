@@ -1,6 +1,6 @@
 # Casino Pepón
 
-Un casino para aprender con **fichas virtuales sin valor real**: Texas Hold'em No-Limit contra rivales de IA, blackjack con reglas configurables y ruleta europea. Incluye un **coach** que recomienda la jugada antes de que actúes, la explica en español sencillo con los números clave (equity, pot odds, valor esperado) y revisa cada mano al terminar.
+Un casino para aprender con **fichas virtuales sin valor real** y **10 juegos**: Texas Hold'em No-Limit contra rivales de IA, blackjack con reglas configurables, ruleta europea, video póker, baccarat, póker de 3 cartas, Tres Dados, la tragamonedas "Fiesta Pepona", keno y Mayor o Menor. Incluye un **coach** que recomienda la jugada antes de que actúes, la explica en español sencillo con los números clave (equity, pot odds, valor esperado) y revisa cada mano al terminar.
 
 - Sin dinero real, depósitos, retiros, premios canjeables, compras, anuncios ni cuentas.
 - Sin patrones de presión: no hay bonos por racha, temporizadores ni "casi ganas". Puedes **reiniciar las fichas gratis** cuando quieras y activar un recordatorio de pausa.
@@ -13,8 +13,15 @@ Un casino para aprender con **fichas virtuales sin valor real**: Texas Hold'em N
 | **Texas Hold'em No-Limit** | 1 a 5 rivales de IA (Principiante, Intermedio, Avanzado, Experto o Mixto), 8 personajes con estilo propio. Ciegas, posiciones, subida mínima, all-in incompleto que no reabre la acción, devolución de apuesta no igualada, botes secundarios, empates con ficha impar, eliminación y ciegas que suben (opcional). |
 | **Blackjack** | Pedir, plantarse, doblar, dividir (re-división hasta 4 manos) y seguro. Reglas configurables: 1–8 mazos, H17/S17, pago 3:2 o 6:5, doblar después de dividir, doblar sólo 9–11 o 10–11, re-dividir y pedir con ases, revisión del crupier (americana o europea) y penetración. 0–2 compañeros de mesa con IA. |
 | **Ruleta europea** | Pleno, caballo, transversal, cuadro, seisena, trío, primeros cuatro, docenas, columnas y apuestas sencillas. Selector táctil de combinaciones, deshacer, repetir, historial, frecuencias y explicación de probabilidades: ninguna estrategia elimina la ventaja de la casa (−2.70 %). |
+| **Video póker** | Jotas o mejor con tabla completa 9/6, 1–5 monedas. El coach calcula el **EV exacto de las 32 formas de conservar cartas** (hasta 1.5 M combinaciones por opción, en un Web Worker). RTP 99.54 % jugando perfecto. |
+| **Baccarat** | Punto, Banca (comisión 5 %), Empate y Parejas; reglas de tercera carta automáticas, zapato de 8 mazos y "camino" de resultados. |
+| **Póker de 3 cartas** | Ante/Jugar contra el crupier (califica con dama alta), bono de Ante y Pair Plus. El coach enumera las 18,424 manos posibles del crupier para el EV exacto de jugar o retirarse. |
+| **Tres Dados** | Chico/Grande, Par/Impar, sumas, dobles, triples, números y combinaciones; EV exacto de cada apuesta sobre los 216 resultados. |
+| **Fiesta Pepona** | Tragamonedas de 3 carretes y 5 líneas con símbolos originales. **RTP exacto 96.57 %** calculado sobre las 27,000 combinaciones. Sin giro automático, sin "casi ganas" fabricados y sin disfrazar pérdidas de premios. |
+| **Keno** | Elige 1–10 de 80 números; se sortean 20. Tabla de pagos con probabilidades hipergeométricas exactas (RTP 92–95 %). |
+| **Mayor o Menor** | Adivina si la siguiente carta será mayor, menor o igual; pagos calculados con las cartas que quedan y 3 % de ventaja fija. |
 
-Además: onboarding breve, tutorial por juego, estadísticas con áreas de mejora, historial de manos, sección "Cómo funciona" con reglas y probabilidades, ajustes (sonido sintetizado opcional, reducción de movimiento, ritmo de la IA, vibración, baraja de cuatro colores, recordatorio de pausa) y atajos de teclado.
+Además: diseño premium con tipografías empaquetadas (Playfair Display e Inter, funcionan offline), lobby con categorías e ilustraciones originales, celebraciones animadas sólo cuando hay ganancia real, onboarding breve, tutorial por juego, estadísticas con áreas de mejora, historial de manos, sección "Cómo funciona" con reglas y probabilidades, ajustes (sonido sintetizado opcional, reducción de movimiento, ritmo de la IA, vibración, baraja de cuatro colores, recordatorio de pausa) y atajos de teclado.
 
 ## Requisitos
 
@@ -47,9 +54,9 @@ y abre `http://localhost:4173`.
 
 | Comando | Qué hace |
 |---|---|
-| `npm test` | Pruebas unitarias (Vitest): RNG y Fisher–Yates, evaluador (enumera las 2,598,960 manos de 5 cartas), motor de póker (ciegas, subidas, all-ins, botes secundarios, empates, eliminación, invariantes con miles de manos aleatorias), blackjack (pagos, doblar, dividir, seguro, H17/S17, ENHC, zapato), ruleta, EV de blackjack contra Monte Carlo, IA (legalidad, privacidad, rangos, equity) **y un torneo determinista** que exige que el Experto gane con IC 95 % > 0. |
-| `npm run e2e` | Pruebas end-to-end con Playwright (construye y sirve la app): flujos principales de los tres juegos, coach, reinicio de fichas, integridad al salir o recargar, PWA offline, accesibilidad básica y **pruebas responsivas** en 360×800, 390×844, 768×1024, 1366×768, 1920×1080 y celular horizontal 844×390. Si tu Chromium está en otra ruta, usa `PW_CHROMIUM_PATH=/ruta/a/chromium npm run e2e`. |
-| `npm run sim` | Simulaciones masivas con el RNG criptográfico real: 10 M manos de póker de 7 cartas, 10 M giros de ruleta y ~9.5 M rondas de blackjack con distintas reglas y niveles. Escribe `reports/simulations.md`. Usa `-- --quick` para una muestra pequeña. |
+| `npm test` | 120 pruebas unitarias (Vitest): RNG y Fisher–Yates, evaluador (enumera las 2,598,960 manos de 5 cartas), motor de póker (ciegas, subidas, all-ins, botes secundarios, empates, eliminación, invariantes con miles de manos aleatorias), blackjack (pagos, doblar, dividir, seguro, H17/S17, ENHC, zapato), ruleta, EV de blackjack contra Monte Carlo, IA (legalidad, privacidad, rangos, equity) **y un torneo determinista** que exige que el Experto gane con IC 95 % > 0; además los 7 juegos adicionales (EV de video póker contra valores publicados, tercera carta de baccarat, EV exacto de dados, RTP exacto de la tragamonedas, probabilidades de keno, estrategia Q-6-4, pagos de Mayor o Menor). |
+| `npm run e2e` | 44 pruebas end-to-end con Playwright (construye y sirve la app): flujos principales de los 10 juegos, coach, reinicio de fichas, integridad al salir o recargar, PWA offline, accesibilidad básica y **pruebas responsivas** en 360×800, 390×844, 768×1024, 1366×768, 1920×1080 y celular horizontal 844×390. Si tu Chromium está en otra ruta, usa `PW_CHROMIUM_PATH=/ruta/a/chromium npm run e2e`. |
+| `npm run sim` | Simulaciones masivas con el RNG criptográfico real: 10 M manos de póker de 7 cartas, 10 M giros de ruleta, ~9.5 M rondas de blackjack y 13 M rondas de los juegos adicionales. Escribe `reports/simulations.md`. Usa `-- --quick` para una muestra pequeña. |
 | `npm run tournament` | Torneos automáticos entre niveles de IA (mano a mano duplicado de 50,000 manos por enfrentamiento, mesa de 6 y freezeouts), en paralelo. Escribe `reports/tournament.md`. Usa `-- --quick` para una muestra pequeña. |
 | `npm run typecheck` | Verificación de tipos con TypeScript estricto. |
 
@@ -78,6 +85,7 @@ src/
     poker/       Evaluador de manos, máquina de estados, botes, vista de jugador
     blackjack/   Reglas, zapato, liquidación, ventaja de la casa
     roulette/    Rueda europea, validación y pago de apuestas
+    videopoker/ baccarat/ threecard/ dice/ slots/ keno/ hilo/   Motores de los juegos adicionales
   ai/
     poker/       Combos y rangos, Monte Carlo, modelo de rivales, análisis EV, bots por nivel, perfiles, arnés de torneos
     blackjack/   EV exacto por acción, estrategia básica, niveles
@@ -85,7 +93,7 @@ src/
   workers/       Web Worker de IA y cliente RPC (con respaldo en el hilo principal)
   persistence/   Esquema del progreso y almacenamiento local tolerante a errores
   audio/         Efectos de sonido sintetizados (Web Audio)
-  ui/            React: pantallas, componentes, estilos
+  ui/            React: pantallas, componentes, estilos (ui/arcade = juegos adicionales)
 tests/unit/      Vitest
 e2e/             Playwright (flujos y responsivo)
 scripts/         Simulaciones, torneos y generación de tablas preflop

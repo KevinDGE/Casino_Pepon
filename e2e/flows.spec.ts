@@ -8,7 +8,7 @@ test.describe('Flujos principales', () => {
     for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Siguiente' }).click();
     await page.getByRole('switch', { name: 'Coach activado' }).isVisible();
     await page.getByRole('button', { name: 'Empezar' }).click();
-    await expect(page.getByRole('button', { name: /Texas Hold/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Texas Hold’em:/ })).toBeVisible();
     expect(await chipsShown(page)).toBe(10000);
     await expect(page.locator('html')).toHaveAttribute('lang', 'es-MX');
   });
@@ -54,7 +54,7 @@ test.describe('Flujos principales', () => {
     expect(handsDone).toBeGreaterThanOrEqual(1);
     await page.getByRole('button', { name: 'Salir', exact: true }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Salir' }).click();
-    await expect(page.getByRole('button', { name: /Texas Hold/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Texas Hold’em:/ })).toBeVisible();
     const chips = await chipsShown(page);
     expect(chips).toBeGreaterThan(8000 - 1);
     await page.goto('/#/history');
@@ -149,7 +149,7 @@ test.describe('Flujos principales', () => {
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
     page.on('pageerror', (e) => errors.push(e.message));
     await seedProfile(page);
-    for (const r of ['', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings']) {
+    for (const r of ['', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings', 'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor']) {
       await page.goto(`/#/${r}`);
       await page.waitForTimeout(300);
       const unnamed = await page.evaluate(() =>
@@ -201,7 +201,7 @@ test.describe('PWA offline', () => {
     await page.waitForFunction(() => !!navigator.serviceWorker.controller, undefined, { timeout: 20000 });
     await context.setOffline(true);
     await page.reload();
-    await expect(page.getByRole('button', { name: /Texas Hold/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Texas Hold’em:/ })).toBeVisible();
     await page.goto('/#/roulette');
     await expect(page.getByRole('button', { name: /^Rojo, paga/ })).toBeVisible();
     const manifest = await page.evaluate(() => document.querySelector('link[rel="manifest"]')?.getAttribute('href'));

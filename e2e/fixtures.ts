@@ -6,7 +6,7 @@ export async function seedProfile(page: Page, extra: Record<string, unknown> = {
     if (!localStorage.getItem('casino-pepon:v1')) {
       localStorage.setItem(
         'casino-pepon:v1',
-        JSON.stringify({ onboardingDone: true, tutorialsSeen: { poker: true, blackjack: true, roulette: true }, settings: { speed: 'fast', coach: true }, ...ex }),
+        JSON.stringify({ onboardingDone: true, tutorialsSeen: { poker: true, blackjack: true, roulette: true, videopoker: true, baccarat: true, trescartas: true, dados: true, tragamonedas: true, keno: true, mayormenor: true }, settings: { speed: 'fast', coach: true, motion: 'reduce' }, ...ex }),
       );
     }
   }, extra);

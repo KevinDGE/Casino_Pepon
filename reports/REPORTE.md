@@ -1,4 +1,4 @@
-# Reporte de pruebas, simulaciones y torneos — Casino Pepón 1.0
+# Reporte de pruebas, simulaciones y torneos — Casino Pepón 1.1 (10 juegos)
 
 Fecha: 2026-11-05 · Entorno: Node 22, Chromium (Playwright 1.63), 4 núcleos.
 
@@ -7,9 +7,9 @@ Fecha: 2026-11-05 · Entorno: Node 22, Chromium (Playwright 1.63), 4 núcleos.
 | Área | Resultado |
 |---|---|
 | Compilación (`tsc -b` estricto + `vite build`) | Sin errores ni advertencias de tipos. Bundle inicial 294 KB (97.6 KB gzip); pantallas de juego cargadas bajo demanda; 24 recursos precacheados para uso offline. |
-| Pruebas unitarias (Vitest) | **96 / 96** aprobadas en 8 archivos (~10 s). |
-| Pruebas end-to-end y responsivas (Playwright) | **29 / 29** aprobadas (~34 s). |
-| Simulaciones | 10 M manos de póker, 10 M giros de ruleta, 9.5 M rondas de blackjack: todas coinciden con la teoría. |
+| Pruebas unitarias (Vitest) | **120 / 120** aprobadas en 9 archivos (~10 s). |
+| Pruebas end-to-end y responsivas (Playwright) | **44 / 44** aprobadas (~43 s). |
+| Simulaciones | 10 M manos de póker, 10 M giros de ruleta, 9.5 M rondas de blackjack y 13 M rondas de los 7 juegos adicionales: todas coinciden con la teoría. |
 | Torneos de IA | El **Experto vence** a Avanzado, Intermedio y Principiante con IC 95 % muy por encima de cero en 50,000 manos por enfrentamiento. |
 | Auditoría | Bugs encontrados y corregidos (ver abajo); CSP estricta sin violaciones; sin errores de consola en ninguna ruta. |
 
@@ -24,11 +24,14 @@ Fecha: 2026-11-05 · Entorno: Node 22, Chromium (Playwright 1.63), 4 núcleos.
 | `roulette.test.ts` | 7 | Rueda de 37 casillas con colores alternados, pagos, EV = −1/37 para toda apuesta, validación de apuestas del paño, selector táctil, liquidación, uniformidad del giro. |
 | `ai.test.ts` | 16 | Equity Monte Carlo (AA vs KK ≈ 82 %, AKs vs QQ ≈ 46 %, AA vs 1 y 4 rivales), equity exacta en el river, equity contra rango que continúa, rangos y texturas, outs, estimación de rango tras 3-bet, modelo de rivales (VPIP, PFR, retiradas), **legalidad de todas las acciones de los 4 niveles**, **la decisión del Experto no cambia si se alteran las cartas ocultas o el mazo**, mezcla softmax, objetivo de faroles, recomendaciones preflop, **torneo determinista** (Experto gana con IC 95 % > 0 a los tres niveles). |
 | `coach.test.ts` | 5 | Recomendación y explicación de póker, pot odds y calificación de decisiones, coach de blackjack (16 vs 10 pedir, 11 vs 6 doblar, seguro), coach de ruleta (pérdida esperada y probabilidades). |
+| `games.test.ts` | 24 | Video póker (clasificación, cambio de cartas, **EV exacto = valores publicados 1.5365 y 0.8237**, estrategia simple vs óptima), baccarat (tabla completa de tercera carta, pagos, ventaja simulada), Tres Dados (pagos, EV exacto, uniformidad), tragamonedas (comodín, **RTP exacto 95–97 %**, simulación converge, ventana = tira real), keno (probabilidades suman 1, RTP 90–96 %, sorteo de 20 distintos), póker de 3 cartas (ranking, calificación, liquidación, **frontera Q-6-4 por EV exacto**), Mayor o Menor (probabilidades, pagos ≤ 97 %, rebarajado). |
 | `persistence.test.ts` | 5 | Perfil por defecto, guardar/recuperar, JSON corrupto o datos viejos/parciales, claves dinámicas, sesiones y borrado. |
 
 ## 2. Pruebas end-to-end y responsivas (Playwright, Chromium)
 
 Flujos (11 pruebas): onboarding y lobby; reinicio de fichas gratis; póker completo con coach y salida devolviendo fichas; panel de subida con atajos de teclado; blackjack (apostar, jugar 3 rondas, cambiar reglas, estadísticas); ruleta (apuesta exterior, selector de combinaciones, deshacer con teclado, giro con Espacio, estadísticas e historial); "Cómo funciona" y ajustes (reducción de movimiento, sonido); **accesibilidad básica** (todo botón, enlace, interruptor y opción con nombre accesible en las 8 rutas) **sin errores de consola ni violaciones de CSP**; integridad (salir a mitad de ronda de blackjack la liquida; recargar a mitad de mano de póker cuenta como retirada); **PWA offline** (tras la primera carga, con la red desactivada la app recarga y navega).
+
+Juegos adicionales (15 pruebas): lobby con 10 juegos y filtro por categoría; video póker con coach exacto y teclas 1–5; baccarat; póker de 3 cartas con EV; Tres Dados; tragamonedas con RTP publicado y tabla de pagos; keno; Mayor o Menor; salir durante una animación liquida la ronda; y las 7 pantallas nuevas sin scroll horizontal y con el panel de controles dentro de la pantalla en los 6 tamaños.
 
 Responsivo (18 pruebas = 3 × 6 tamaños): **360×800, 390×844, 768×1024, 1366×768, 1920×1080** y celular horizontal **844×390**. En cada tamaño: lobby, estadísticas, historial, reglas y ajustes sin scroll horizontal; mesa de póker de 6 jugadores con los 6 asientos, el tablero y los botones dentro de la pantalla y botones de al menos 44 px de alto; blackjack y ruleta caben sin scroll horizontal. Las capturas quedan adjuntas en el reporte HTML de Playwright (`playwright-report/`).
 
@@ -50,6 +53,8 @@ Detalle completo en [`simulations.md`](simulations.md).
 | 1 mazo S17 sin DAS 3:2 | −0.01 % (IC incluye 0.09 %) | 0.09 % |
 
 Niveles de IA de blackjack (6 mazos S17): Principiante 94.62 % RTP, Intermedio 96.48 %, Avanzado 99.59 %, Experto 99.80 %.
+
+**Juegos adicionales** (detalle en `simulations.md`, 13 M rondas): video póker con estrategia simple 98.87 % en 2 M manos (teórico ≈ 99.46 %; error estándar ≈ 0.3 % por la varianza del premio de 800); baccarat Banca 98.87 % / Punto 98.84 % / Empate 85.73 % (teóricos 98.94 / 98.76 / 85.64 %); Tres Dados: las 5 apuestas medidas a menos de 0.25 puntos de su EV exacto; tragamonedas 97.17 % en 2 M giros (exacto 96.57 %; premios raros); póker de 3 cartas con Q-6-4 96.73 % por unidad de Ante (teórico 96.63 %) y Pair Plus 92.81 % (92.72 %); Mayor o Menor 96.62 %. La distribución de aciertos del keno coincide con la hipergeométrica (χ² = 12.1 en 3 M sorteos, RTP 92.0 % con 10 números).
 
 ## 4. Torneos automáticos de IA de póker
 
@@ -80,7 +85,9 @@ Freezeouts mano a mano (150 partidas por rival): el Experto gana 79.3 % contra A
 3. *Zapato agotado con 1 mazo* (detectado por la simulación masiva): re-barajado de descartes de emergencia y barajado preventivo si quedan pocas cartas. Prueba de regresión agregada.
 4. *Columna de la cuadrícula más ancha que la pantalla* en las mesas (oculta por `overflow: hidden`, recortaba asientos en 360 px; detectado por las pruebas responsivas): `grid-template-columns: minmax(0, 1fr)`.
 5. *Integridad:* salir o recargar a mitad de mano/ronda podía anular una mano perdedora. Ahora cuenta como retirada (póker), se resuelve con estrategia básica (blackjack) o se liquida (ruleta).
-6. *Coach mostrando un "EV" heurístico* en aperturas preflop: ahora muestra "abrir con top X %" y lo explica.
+6. *Premio de "una cereza" que pagaba menos que la apuesta* y se celebraba como victoria (patrón de "pérdida disfrazada de premio"): eliminado; los premios parciales se muestran como pérdida.
+7. *Keno de 10 números con RTP simulado de 103.65 %*: se verificó que la distribución de aciertos es exacta; fue varianza de un premio enorme.
+8. *Coach mostrando un "EV" heurístico* en aperturas preflop: ahora muestra "abrir con top X %" y lo explica.
 
 **Rendimiento:** una decisión del Experto tarda ~9 ms de mediana (p95 < 25 ms) y el coach ~15 ms (p95 < 26 ms), ejecutadas en Web Workers; la interfaz no se bloquea.
 

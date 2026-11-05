@@ -19,11 +19,21 @@ import { applyBJAction, createBlackjack, decideInsurance, startRound, seatRoundN
 import { DEFAULT_RULES, type BlackjackRules } from '../src/engine/blackjack/types';
 import { decideBJ, decideInsuranceAI, type BJLevel } from '../src/ai/blackjack/strategy';
 import { estimateHouseEdge } from '../src/engine/blackjack/houseEdge';
+import { vpDeal, vpDraw, vpSimpleStrategy, maskToHold, VP_PAYTABLE } from '../src/engine/videopoker/videopoker';
+import { newBacShoe, playBaccarat, bacReturn } from '../src/engine/baccarat/baccarat';
+import { rollDice, diceNet, diceStats, type DiceBet } from '../src/engine/dice/dice';
+import { spinSlots, exactSlotsRTP } from '../src/engine/slots/slots';
+import { kenoDraw, kenoSettle, kenoRTP } from '../src/engine/keno/keno';
+import { tcDeal, tcSettle, tcOptimalPlay } from '../src/engine/threecard/threecard';
+import { newHiLo, hiloOdds, hiloPlay } from '../src/engine/hilo/hilo';
 
 type Job =
   | { kind: 'poker7'; n: number }
   | { kind: 'roulette'; n: number }
-  | { kind: 'bj'; n: number; level: BJLevel; rules: BlackjackRules; key: string };
+  | { kind: 'bj'; n: number; level: BJLevel; rules: BlackjackRules; key: string }
+  | { kind: 'arcade'; game: string; n: number };
+
+const DICE_BETS: DiceBet[] = [{ kind: 'small', value: [] }, { kind: 'single', value: [4] }, { kind: 'total', value: [10] }, { kind: 'anyTriple', value: [] }, { kind: 'combo', value: [2, 5] }];
 
 function runJob(job: Job): unknown {
   const rng = new CryptoRng();
@@ -62,6 +72,63 @@ function runJob(job: Job): unknown {
         settleBets(bets, r).forEach((b, k) => (returned[k] += b.returned));
       }
       return { freq, n: job.n, returned, kinds: bets.map((b) => b.kind) };
+    }
+    case 'arcade': {
+      const out: Record<string, number> = { n: job.n };
+      const add = (k: string, v: number) => { out[k] = (out[k] ?? 0) + v; };
+      switch (job.game) {
+        case 'videopoker':
+          for (let i = 0; i < job.n; i++) {
+            const d = vpDeal(rng, 1);
+            const r = vpDraw(d, maskToHold(vpSimpleStrategy(d.hand)));
+            add('ret', VP_PAYTABLE[r.result!]);
+          }
+          break;
+        case 'baccarat': {
+          const shoe = newBacShoe(rng);
+          for (let i = 0; i < job.n; i++) {
+            const r = playBaccarat(shoe, rng);
+            add('banker', bacReturn('banker', 1, r)); add('player', bacReturn('player', 1, r)); add('tie', bacReturn('tie', 1, r)); add('pair', bacReturn('playerPair', 1, r));
+          }
+          break;
+        }
+        case 'dados':
+          for (let i = 0; i < job.n; i++) {
+            const r = rollDice(rng);
+            DICE_BETS.forEach((b, k) => add(`b${k}`, diceNet(b, r) + 1));
+          }
+          break;
+        case 'tragamonedas':
+          for (let i = 0; i < job.n; i++) add('ret', spinSlots(rng).totalPay / 5);
+          break;
+        case 'keno':
+          for (let i = 0; i < job.n; i++) {
+            const d = kenoDraw(rng);
+            for (const spots of [1, 4, 6, 10]) add(`k${spots}`, kenoSettle(Array.from({ length: spots }, (_, j) => j + 1), d, 1).returned);
+          }
+          break;
+        case 'trescartas':
+          for (let i = 0; i < job.n; i++) {
+            const r = tcDeal(rng, 1, 1);
+            const playIt = tcOptimalPlay(r.player);
+            const res = tcSettle(r, playIt);
+            add('anteNet', res.anteNet + res.playNet + res.bonusNet);
+            add('ppNet', res.pairPlusNet);
+          }
+          break;
+        case 'mayormenor': {
+          let st = newHiLo(rng);
+          for (let i = 0; i < job.n; i++) {
+            const o = hiloOdds(st);
+            const g = o.higher >= o.lower ? 'higher' : 'lower';
+            const r = hiloPlay(st, g, rng);
+            add('ret', r.won ? r.multiplier : 0);
+            st = r.state;
+          }
+          break;
+        }
+      }
+      return out;
     }
     case 'bj': {
       const t = createBlackjack(job.rules, [{ id: 'p', name: 'p', isHuman: false, bankroll: 1e15 }], rng);
@@ -105,6 +172,8 @@ async function main(): Promise<void> {
   for (const lv of ['beginner', 'intermediate', 'expert'] as BJLevel[]) {
     for (let c = 0; c < 2; c++) jobs.push({ key: `bj|${lv}|${ruleSets[0]!.key}`, job: { kind: 'bj', n: Math.round(250_000 * M), level: lv, rules: ruleSets[0]!.rules, key: ruleSets[0]!.key } });
   }
+  const ARCADE: [string, number][] = [['videopoker', 2_000_000], ['baccarat', 2_000_000], ['dados', 2_000_000], ['tragamonedas', 2_000_000], ['keno', 1_000_000], ['trescartas', 2_000_000], ['mayormenor', 2_000_000]];
+  for (const [g, n] of ARCADE) for (let c = 0; c < chunks; c++) jobs.push({ key: `arcade|${g}`, job: { kind: 'arcade', game: g, n: Math.round((n / chunks) * M) } });
   const self = fileURLToPath(import.meta.url);
   const results = new Map<string, unknown[]>();
   let next = 0;
@@ -188,6 +257,32 @@ async function main(): Promise<void> {
   }
   lines.push('', 'El Experto usa EV dependiente de la composición con todas las cartas vistas desde el barajado (sin ver la carta oculta ni el orden del zapato) y apuesta plano: su ventaja sobre la estrategia básica es pequeña, como se espera en la teoría.', '');
   json.blackjack = bj;
+
+  // Juegos adicionales
+  const agg = (g: string) => (results.get(`arcade|${g}`) as Record<string, number>[]).reduce((a, r) => { for (const [k, v] of Object.entries(r)) a[k] = (a[k] ?? 0) + v; return a; }, {} as Record<string, number>);
+  const row = (name: string, sim: number, theo: string) => `| ${name} | ${(sim * 100).toFixed(2)}% | ${theo} |`;
+  lines.push('## 4. Juegos adicionales', '', '| Juego / apuesta | RTP simulado | Teórico |', '|---|---:|---:|');
+  const vp = agg('videopoker');
+  lines.push(row(`Video póker 9/6, estrategia simple (${vp.n!.toLocaleString('es-MX')} manos)`, vp.ret! / vp.n!, '≈ 99.46 % (simple) · 99.54 % (óptima)'));
+  const bc = agg('baccarat');
+  lines.push(row(`Baccarat Banca (${bc.n!.toLocaleString('es-MX')} manos)`, bc.banker! / bc.n!, '98.94 %'));
+  lines.push(row('Baccarat Punto', bc.player! / bc.n!, '98.76 %'));
+  lines.push(row('Baccarat Empate', bc.tie! / bc.n!, '85.64 %'));
+  lines.push(row('Baccarat Pareja de Punto', bc.pair! / bc.n!, '89.64 %'));
+  const dc = agg('dados');
+  const diceNames = ['Chico', 'Número 4', 'Suma 10', 'Cualquier triple', 'Combinación 2-5'];
+  DICE_BETS.forEach((b, k) => lines.push(row(`Tres Dados: ${diceNames[k]}${k === 0 ? ` (${dc.n!.toLocaleString('es-MX')} tiradas)` : ''}`, dc[`b${k}`]! / dc.n!, `${((1 + diceStats(b).ev) * 100).toFixed(2)} % (exacto)`)));
+  const sl = agg('tragamonedas');
+  lines.push(row(`Fiesta Pepona, 5 líneas (${sl.n!.toLocaleString('es-MX')} giros)`, sl.ret! / sl.n!, `${(exactSlotsRTP(5).rtp * 100).toFixed(2)} % (exacto)`));
+  const kn = agg('keno');
+  for (const spots of [1, 4, 6, 10]) lines.push(row(`Keno ${spots} números${spots === 1 ? ` (${kn.n!.toLocaleString('es-MX')} sorteos)` : ''}`, kn[`k${spots}`]! / kn.n!, `${(kenoRTP(spots) * 100).toFixed(2)} % (exacto)`));
+  const tc = agg('trescartas');
+  lines.push(row(`Póker de 3 cartas: Ante+Jugar, estrategia Q-6-4 (${tc.n!.toLocaleString('es-MX')} manos, por unidad de Ante)`, 1 + tc.anteNet! / tc.n!, '96.63 % (casa 3.37 % del Ante)'));
+  lines.push(row('Póker de 3 cartas: Pair Plus', 1 + tc.ppNet! / tc.n!, '92.72 %'));
+  const hl = agg('mayormenor');
+  lines.push(row(`Mayor o Menor, opción más probable (${hl.n!.toLocaleString('es-MX')} apuestas)`, hl.ret! / hl.n!, '≤ 97 % (3 % + redondeo)'));
+  lines.push('', 'Nota: el keno de 9–10 números y la tragamonedas tienen premios enormes y poco frecuentes (p. ej. 10 de 10 ≈ 1 en 8.9 millones), así que su RTP simulado puede desviarse varios puntos en un millón de rondas aunque el motor sea exacto; la distribución de aciertos del keno se valida por separado con χ² (`tests/unit/games.test.ts` y verificación de 3 M sorteos: RTP 92.0 %).', '');
+  json.arcade = { vp, bc, dc, sl, kn, tc, hl };
   const md = lines.join('\n') + '\n';
   mkdirSync(new URL('../reports', import.meta.url), { recursive: true });
   writeFileSync(new URL(`../reports/simulations${quick ? '-quick' : ''}.md`, import.meta.url), md);

@@ -51,6 +51,16 @@
 - Un solo cero, 37 casillas, pago uniforme `36/n − 1`. El resultado se decide con `CryptoRng` **antes** de la animación; la rueda SVG gira hasta el número elegido.
 - En celular, tocar un número coloca un pleno (modo por defecto) o abre un selector con todas las apuestas interiores que lo incluyen (modo "Elegir combinación"); así se evitan zonas táctiles diminutas entre números.
 
+## Juegos adicionales
+
+- **Géneros genéricos con identidad propia:** video póker "Jotas o mejor" (tipo de juego estándar), baccarat, póker de 3 cartas, dados estilo Sic Bo ("Tres Dados"), tragamonedas original "Fiesta Pepona" con símbolos dibujados en SVG, keno y Mayor o Menor. No se recrea ningún juego comercial concreto.
+- **Video póker:** EV exacto por enumeración completa (≈ 2.6 M evaluaciones por mano, ~0.2 s en el worker). Coincide con los valores publicados (pareja alta 1.5365, pareja baja 0.8237). La escalera real paga 800 sólo con 5 monedas, como en las máquinas reales, y el coach lo toma en cuenta. Para simulaciones masivas se usa una estrategia simple clásica (≈ 99.46 %).
+- **Tragamonedas:** tiras de 30 símbolos, paradas uniformes, ventana = tira real. RTP calculado exacto y publicado en pantalla. Decisiones anti-manipulación: **sin giro automático**, **sin "casi ganas"** fabricados, se eliminó el premio de "una cereza" (pagaba menos que la apuesta en 5 líneas) y cualquier premio menor que lo apostado se muestra como pérdida ("Recuperas X de Y"), nunca con celebración.
+- **Keno:** tablas de pago calibradas para RTP entre 92 % y 95 % según la cantidad de números; probabilidades exactas mostradas en la tabla.
+- **Mayor o Menor:** multiplicador = 0.97 / p, redondeado hacia abajo a centésimas; p se calcula con las cartas restantes (información visible).
+- **Billetera común** (`useWallet`): descuenta la apuesta al jugar y registra estadísticas e historial al liquidar. Si se sale durante una animación, el resultado ya decidido se liquida igual; si se sale a mitad de una decisión (video póker, póker de 3 cartas), la mano se completa con la estrategia óptima/simple.
+- **Celebraciones:** explosión de fichas y confeti sólo con ganancia neta; "¡Gran premio!" a partir de 10× lo apostado; se desactivan con reducción de movimiento.
+
 ## Coach y estadísticas
 
 - Póker: recomendación con equity, pot odds, EV por opción, outs, posición, SPR, textura y estilo del rival. Revisión: cada decisión se califica por la pérdida de EV frente a la mejor opción (acierto / imprecisión / error) y se etiqueta el tipo de error para "áreas de mejora".
@@ -78,4 +88,5 @@
 5. **Zapato de blackjack:** no se guarda entre sesiones; al abrir la app se baraja uno nuevo.
 6. **Persistencia:** sólo local (por navegador y dispositivo). Borrar los datos del sitio borra el progreso. Si se cierra la pestaña de golpe durante una ronda de blackjack o un giro, esa ronda puede quedar sin liquidar (la apuesta ya descontada no se devuelve).
 7. **Sonido:** efectos sintetizados sencillos; algunos navegadores sólo permiten audio tras una interacción.
-8. **Pruebas e2e:** se ejecutan en Chromium. La app usa APIs estándar (Web Workers de módulo, Service Worker, Web Audio) disponibles en Safari y Firefox modernos, pero no se automatizaron pruebas en esos motores.
+8. **Juegos adicionales:** baccarat usa la ventaja de la casa publicada para 8 mazos (verificada por simulación) en lugar de un cálculo combinatorio propio; el keno de 9–10 números y la tragamonedas tienen premios tan raros que su RTP simulado en 1–2 M rondas puede desviarse varios puntos del exacto.
+9. **Pruebas e2e:** se ejecutan en Chromium. La app usa APIs estándar (Web Workers de módulo, Service Worker, Web Audio) disponibles en Safari y Firefox modernos, pero no se automatizaron pruebas en esos motores.
