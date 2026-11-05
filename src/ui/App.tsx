@@ -1,0 +1,92 @@
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { ProfileProvider, useProfile } from './store';
+import { AnnouncerProvider } from './announcer';
+import { useRoute } from './router';
+import { Lobby } from './screens/Lobby';
+import { Onboarding } from './screens/Onboarding';
+import { Settings } from './screens/Settings';
+import { Stats } from './screens/Stats';
+import { History } from './screens/History';
+import { HowItWorks } from './screens/HowItWorks';
+import { Modal } from './components/Modal';
+import { navigate } from './router';
+import { RankingScreen } from './ranking/RankingScreen';
+import { RankingSync } from './ranking/useRanking';
+
+const PokerScreen = lazy(() => import('./poker/PokerScreen').then((m) => ({ default: m.PokerScreen })));
+const BlackjackScreen = lazy(() => import('./blackjack/BlackjackScreen').then((m) => ({ default: m.BlackjackScreen })));
+const RouletteScreen = lazy(() => import('./roulette/RouletteScreen').then((m) => ({ default: m.RouletteScreen })));
+const VideoPokerScreen = lazy(() => import('./arcade/VideoPokerScreen').then((m) => ({ default: m.VideoPokerScreen })));
+const BaccaratScreen = lazy(() => import('./arcade/BaccaratScreen').then((m) => ({ default: m.BaccaratScreen })));
+const ThreeCardScreen = lazy(() => import('./arcade/ThreeCardScreen').then((m) => ({ default: m.ThreeCardScreen })));
+const DiceScreen = lazy(() => import('./arcade/DiceScreen').then((m) => ({ default: m.DiceScreen })));
+const SlotsScreen = lazy(() => import('./arcade/SlotsScreen').then((m) => ({ default: m.SlotsScreen })));
+const KenoScreen = lazy(() => import('./arcade/KenoScreen').then((m) => ({ default: m.KenoScreen })));
+const OnlineScreen = lazy(() => import('./mp/OnlineScreen').then((m) => ({ default: m.OnlineScreen })));
+const HiLoScreen = lazy(() => import('./arcade/HiLoScreen').then((m) => ({ default: m.HiLoScreen })));
+
+/** Recordatorio de pausa opcional, sin presión: sólo informa. */
+function BreakReminder() {
+  const { profile } = useProfile();
+  const minutes = profile.settings.breakReminder;
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!minutes) return;
+    const t = window.setInterval(() => setOpen(true), minutes * 60_000);
+    return () => window.clearInterval(t);
+  }, [minutes]);
+  return (
+    <Modal open={open} title="¿Un descanso?" onClose={() => setOpen(false)} size="sm"
+      footer={<><button className="btn btn-ghost" onClick={() => { setOpen(false); navigate('lobby'); }}>Ir al inicio</button><button className="btn btn-gold" onClick={() => setOpen(false)}>Seguir</button></>}>
+      <p>Llevas {minutes} minutos jugando. Estirarte, tomar agua o descansar la vista siempre ayuda. Tus fichas y tu mesa te esperan.</p>
+    </Modal>
+  );
+}
+
+function Routes() {
+  const { profile } = useProfile();
+  const { route } = useRoute();
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      lobby: 'Casino Pepón', poker: 'Póker · Casino Pepón', blackjack: 'Blackjack · Casino Pepón', roulette: 'Ruleta · Casino Pepón',
+      videopoker: 'Video póker · Casino Pepón', baccarat: 'Baccarat · Casino Pepón', trescartas: 'Póker de 3 cartas · Casino Pepón',
+      dados: 'Tres Dados · Casino Pepón', tragamonedas: 'Fiesta Pepona · Casino Pepón', keno: 'Keno · Casino Pepón', mayormenor: 'Mayor o Menor · Casino Pepón',
+      stats: 'Estadísticas · Casino Pepón', ranking: 'Ranking · Casino Pepón', online: 'Póker en línea · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
+    };
+    document.title = titles[route] ?? 'Casino Pepón';
+  }, [route]);
+  if (!profile.onboardingDone) return <Onboarding />;
+  const fallback = <div className="loading-screen" role="status">Cargando mesa…</div>;
+  switch (route) {
+    case 'poker': return <Suspense fallback={fallback}><PokerScreen /></Suspense>;
+    case 'blackjack': return <Suspense fallback={fallback}><BlackjackScreen /></Suspense>;
+    case 'roulette': return <Suspense fallback={fallback}><RouletteScreen /></Suspense>;
+    case 'videopoker': return <Suspense fallback={fallback}><VideoPokerScreen /></Suspense>;
+    case 'baccarat': return <Suspense fallback={fallback}><BaccaratScreen /></Suspense>;
+    case 'trescartas': return <Suspense fallback={fallback}><ThreeCardScreen /></Suspense>;
+    case 'dados': return <Suspense fallback={fallback}><DiceScreen /></Suspense>;
+    case 'tragamonedas': return <Suspense fallback={fallback}><SlotsScreen /></Suspense>;
+    case 'keno': return <Suspense fallback={fallback}><KenoScreen /></Suspense>;
+    case 'mayormenor': return <Suspense fallback={fallback}><HiLoScreen /></Suspense>;
+    case 'stats': return <Stats />;
+    case 'history': return <History />;
+    case 'how': return <HowItWorks />;
+    case 'settings': return <Settings />;
+    case 'ranking': return <RankingScreen />;
+    case 'online': return <Suspense fallback={fallback}><OnlineScreen /></Suspense>;
+    default: return <Lobby />;
+  }
+}
+
+export function App() {
+  return (
+    <ProfileProvider>
+      <AnnouncerProvider>
+        <a className="skip-link" href="#main">Saltar al contenido</a>
+        <Routes />
+        <BreakReminder />
+        <RankingSync />
+      </AnnouncerProvider>
+    </ProfileProvider>
+  );
+}
