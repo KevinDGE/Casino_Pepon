@@ -42,7 +42,7 @@ const HUMAN_ID = 'tu';
 const rng = new CryptoRng();
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 const SPEED_MS = { calm: 1400, normal: 850, fast: 320 } as const;
-const BOT_ITERS: Record<PokerLevel, number> = { beginner: 0, intermediate: 0, advanced: 500, expert: 1200 };
+const BOT_ITERS: Record<PokerLevel, number> = { beginner: 0, intermediate: 0, advanced: 600, expert: 2000 };
 
 export function actionText(name: string, kind: string, to: number, amount: number, isHuman: boolean): string {
   const verb = (h: string, o: string) => (isHuman ? h : o);
@@ -78,7 +78,7 @@ export function handLines(state: PokerState): string[] {
 
 export function usePokerTable() {
   const { profile, update } = useProfile();
-  const { announce } = useAnnouncer();
+  const { announce, toast } = useAnnouncer();
   const [session, setSession] = useState<PokerSession | null>(() => loadSession<PokerSession>('poker'));
   const [state, setState] = useState<PokerState | null>(null);
   const [thinking, setThinking] = useState<number | null>(null);
@@ -163,25 +163,46 @@ export function usePokerTable() {
     return true;
   }, [profile.chips, update, persist, dealNext]);
 
-  // Reanudar una mesa guardada.
+  // Reanudar una mesa guardada. Si se cerró a mitad de mano, esa mano cuenta como retirada.
   useEffect(() => {
     if (session && !state) {
-      const g = buildGame(session);
-      setState(g);
+      let s = session;
+      const marker = loadSession<{ hand: number; committed: number; winner: number }>('pokerHand');
+      if (marker && marker.hand > s.handNumber && marker.committed > 0) {
+        const stacks = [...s.stacks];
+        const lost = Math.min(marker.committed, stacks[0]!);
+        stacks[0] = stacks[0]! - lost;
+        const w = stacks[marker.winner] !== undefined && marker.winner > 0 ? marker.winner : stacks.findIndex((x, i) => i > 0 && x > 0);
+        if (w > 0) stacks[w] = stacks[w]! + lost;
+        s = { ...s, stacks, handNumber: marker.hand };
+        persist(s);
+        toast(`La mano interrumpida se contó como retirada (−${fmtChips(lost)}).`);
+      }
+      saveSession('pokerHand', null);
+      setState(buildGame(s));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Marcador de mano en curso (para que recargar no anule una mano).
+  useEffect(() => {
+    if (!state || state.phase !== 'betting') return;
+    const others = state.players.filter((p) => !p.isHuman && !p.folded && !p.out);
+    const winner = others.sort((a, b) => b.contributed - a.contributed)[0]?.seat ?? 1;
+    saveSession('pokerHand', { hand: state.handNumber, committed: state.players[0]!.contributed, winner });
+  }, [state]);
 
   const leaveTable = useCallback(() => {
     const s = sessionRef.current;
     gen.current++;
     if (s) {
       const st = stateRef.current;
-      // Si la mano está en curso, se devuelve el stack al inicio de la mano (la mano se anula).
-      const stack = st && st.phase === 'betting' ? st.startStacks[0] ?? s.stacks[0]! : st ? st.players[0]!.stack : s.stacks[0]!;
+      // Si la mano está en curso, salir equivale a retirarse: se pierde lo ya apostado.
+      const stack = st ? st.players[0]!.stack : s.stacks[0]!;
       update((d) => { d.chips += stack; });
     }
     persist(null);
+    saveSession('pokerHand', null);
     setState(null);
     setThinking(null);
     setAdvice(null);
@@ -245,6 +266,7 @@ export function usePokerTable() {
     });
     const next: PokerSession = { ...s, models, stacks: g.players.map((p) => p.stack), button: g.button, handNumber: g.handNumber };
     persist(next);
+    saveSession('pokerHand', null);
     if (recs.length) setReview(recs);
     if (net > 0) { play('win'); vibrate(30, settingsRef.current.haptics); }
     announce(net > 0 ? `Ganas ${fmtChips(net)} fichas.` : net < 0 ? `Pierdes ${fmtChips(-net)} fichas.` : 'Mano terminada.');
@@ -273,7 +295,7 @@ export function usePokerTable() {
         setAdvice(null);
         adviceRef.current = null;
         const view = getPlayerView(g, seat);
-        requestCoach({ type: 'pokerCoach', view, models: s.models, iterations: 2500 })
+        requestCoach({ type: 'pokerCoach', view, models: s.models, iterations: 4000 })
           .then((a) => {
             if (gen.current !== myGen || adviceKey.current !== key) return;
             adviceRef.current = a;

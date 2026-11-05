@@ -42,7 +42,12 @@ export function RouletteScreen() {
   const timer = useRef<number | null>(null);
   const wheelRef = useRef<HTMLElement>(null);
   useEffect(() => { if (!profile.tutorialsSeen.roulette) setTutorial(true); }, [profile.tutorialsSeen.roulette]);
-  useEffect(() => () => { if (timer.current) window.clearTimeout(timer.current); }, []);
+  const pendingSettle = useRef<(() => void) | null>(null);
+  // Si se sale durante el giro, el resultado (ya decidido) se liquida igual.
+  useEffect(() => () => {
+    if (timer.current) window.clearTimeout(timer.current);
+    pendingSettle.current?.();
+  }, []);
   const closeTutorial = () => { setTutorial(false); update((d) => { d.tutorialsSeen.roulette = true; }); };
 
   const total = bets.reduce((a, b) => a + b.amount, 0);
@@ -91,7 +96,8 @@ export function RouletteScreen() {
     play('tick');
     announce('La bola está girando…');
     if (!reduced) for (let i = 1; i < 14; i++) window.setTimeout(() => play('tick'), i * i * 20);
-    timer.current = window.setTimeout(() => {
+    const settle = () => {
+      pendingSettle.current = null;
       const settled = settleBets(bets, n);
       const returned = settled.reduce((a, b) => a + b.returned, 0);
       const net = returned - total;
@@ -114,7 +120,9 @@ export function RouletteScreen() {
       setUndo([]);
       if (net > 0) { play('win'); vibrate(30, profile.settings.haptics); } else play('lose');
       announce(`Salió el ${n} ${colorOf(n) === 'red' ? 'rojo' : colorOf(n) === 'black' ? 'negro' : 'verde'}. ${net > 0 ? `Ganas ${fmtChips(net)}` : net < 0 ? `Pierdes ${fmtChips(-net)}` : 'Recuperas tu apuesta'}.`);
-    }, duration + 80);
+    };
+    pendingSettle.current = settle;
+    timer.current = window.setTimeout(settle, duration + 80);
   };
 
   useHotkeys({

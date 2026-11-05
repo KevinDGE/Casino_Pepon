@@ -144,7 +144,10 @@ test.describe('Flujos principales', () => {
     await expect(page.getByRole('switch', { name: 'Sonido' })).toHaveAttribute('aria-checked', 'true');
   });
 
-  test('accesibilidad básica: todos los botones tienen nombre accesible', async ({ page }) => {
+  test('accesibilidad básica: todos los botones tienen nombre accesible y no hay errores de consola/CSP', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+    page.on('pageerror', (e) => errors.push(e.message));
     await seedProfile(page);
     for (const r of ['', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings']) {
       await page.goto(`/#/${r}`);
@@ -157,6 +160,36 @@ test.describe('Flujos principales', () => {
       );
       expect(unnamed, `ruta ${r}`).toBe(0);
     }
+    expect(errors, errors.join('\n')).toEqual([]);
+  });
+});
+
+test.describe('Integridad: salir o recargar no anula una mano', () => {
+  test('blackjack: salir a mitad de ronda la resuelve y la registra', async ({ page }) => {
+    await seedProfile(page);
+    await page.goto('/#/blackjack');
+    await page.getByRole('button', { name: 'Limpiar' }).click();
+    await page.getByRole('button', { name: 'Agregar 100', exact: true }).click();
+    await page.getByRole('button', { name: /^Repartir/ }).click();
+    await page.goto('/#/');
+    await page.goto('/#/history');
+    await page.getByRole('radio', { name: 'Blackjack' }).click();
+    await expect(page.locator('.hist-item')).toHaveCount(1);
+  });
+
+  test('póker: recargar a mitad de mano cuenta como retirada', async ({ page }) => {
+    await seedProfile(page);
+    await page.goto('/#/poker');
+    await page.getByRole('radio', { name: '1' }).first().click();
+    await page.getByRole('button', { name: 'Sentarse a jugar' }).click();
+    for (let i = 0; i < 60; i++) {
+      if (await page.locator('.action-buttons').isVisible().catch(() => false)) break;
+      if (await page.getByRole('button', { name: /Siguiente mano/ }).isVisible().catch(() => false)) await page.keyboard.press('n');
+      await page.waitForTimeout(200);
+    }
+    await page.reload();
+    await expect(page.getByText(/La mano interrumpida se contó como retirada/)).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Repartir/ })).toBeVisible();
   });
 });
 

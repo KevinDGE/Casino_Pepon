@@ -193,7 +193,7 @@ export function PokerScreen() {
       <ConfirmDialog
         open={confirmLeave}
         title="Salir de la mesa"
-        message={<p>{st.phase === 'betting' ? 'La mano en curso se anulará y recuperarás las fichas que tenías al empezarla. ' : ''}Tus fichas de la mesa vuelven a tu saldo.</p>}
+        message={<p>{st.phase === 'betting' ? 'Salir ahora cuenta como retirarte de la mano en curso: pierdes lo que ya apostaste en ella. ' : ''}Tus fichas de la mesa vuelven a tu saldo.</p>}
         confirmText="Salir"
         onCancel={() => setConfirmLeave(false)}
         onConfirm={() => { setConfirmLeave(false); t.leaveTable(); navigate('lobby'); }}
