@@ -16,6 +16,7 @@ import { fmtChips } from '../../coach/format';
 import type { PokerSetup } from '../../persistence/schema';
 import { LEVEL_NAMES_ES } from '../../ai/poker/bots';
 import { getLegalActions } from '../../engine/poker/game';
+import { WinBurst } from '../arcade/Shell';
 
 function Setup({ onStart }: { onStart: (s: PokerSetup) => boolean }) {
   const { profile } = useProfile();
@@ -160,7 +161,8 @@ export function PokerScreen() {
           </div>
         ) : null}
         {handOver && !t.humanOut && !t.tableWon ? (
-          <div className="result-bar slide-up">
+          <div className="result-bar slide-up" style={{ position: 'relative' }}>
+            {net > 0 ? <WinBurst intensity={net >= st.bigBlind * 20 ? 2 : 1} /> : null}
             <div className="result-text">
               <b className={net > 0 ? 'good' : net < 0 ? 'bad' : ''}>
                 {net > 0 ? `Ganaste ${fmtChips(net)}` : net < 0 ? `Perdiste ${fmtChips(-net)}` : 'Sin cambios'}

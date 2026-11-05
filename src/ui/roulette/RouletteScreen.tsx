@@ -17,6 +17,7 @@ import { rouletteAdvice, betInfo } from '../../coach/rouletteCoach';
 import { CryptoRng } from '../../core/rng';
 import { fmtChips, fmtChipsDec, fmtPct, fmtSignedChips } from '../../coach/format';
 import { play, vibrate } from '../../audio/sound';
+import { WinBurst } from '../arcade/Shell';
 
 const rng = new CryptoRng();
 const CHIPS = [1, 5, 25, 100, 500, 1000];
@@ -165,7 +166,8 @@ export function RouletteScreen() {
       <div className={`roulette-layout ${wide ? 'wide' : 'tall'}`}>
         <section className="roulette-left" ref={wheelRef}>
           <Wheel rotation={rot} ballRotation={ballRot} spinning={spinning} duration={duration} result={result} />
-          <div className="spin-result" aria-live="off">
+          <div className="spin-result" aria-live="off" style={{ position: 'relative' }}>
+            {result !== null && lastNet! > 0 ? <WinBurst intensity={lastNet! >= 500 ? 2 : 1} /> : null}
             {result !== null ? (
               <>
                 <span className={`num-ball big num-${colorOf(result)} pop-in`}>{result}</span>

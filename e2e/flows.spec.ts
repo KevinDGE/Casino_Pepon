@@ -31,6 +31,7 @@ test.describe('Flujos principales', () => {
     await page.getByRole('button', { name: 'Sentarse a jugar' }).click();
     expect(await chipsShown(page)).toBe(8000);
     let handsDone = 0;
+    let tableEnded = false;
     for (let step = 0; step < 120 && handsDone < 2; step++) {
       const next = page.getByRole('button', { name: /Siguiente mano/ });
       if (await next.isVisible().catch(() => false)) {
@@ -38,8 +39,8 @@ test.describe('Flujos principales', () => {
         if (handsDone < 2) await next.click();
         continue;
       }
-      const lost = page.getByRole('dialog', { name: /sin fichas|Ganaste la mesa/ });
-      if (await lost.isVisible().catch(() => false)) break;
+      const ended = page.getByRole('dialog', { name: /sin fichas|Ganaste la mesa/ });
+      if (await ended.isVisible().catch(() => false)) { handsDone++; tableEnded = true; break; }
       const check = page.getByRole('button', { name: /^Pasar/ });
       const call = page.getByRole('button', { name: /^(Igualar|All-in)/ });
       if (await check.isVisible().catch(() => false)) {
@@ -52,11 +53,17 @@ test.describe('Flujos principales', () => {
       }
     }
     expect(handsDone).toBeGreaterThanOrEqual(1);
-    await page.getByRole('button', { name: 'Salir', exact: true }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Salir' }).click();
+    if (tableEnded) {
+      // Fin de mesa (eliminado o ganador): salir desde el diálogo.
+      await page.getByRole('dialog').getByRole('button', { name: /Salir al inicio|Cobrar/ }).click();
+    } else {
+      await page.getByRole('button', { name: 'Salir', exact: true }).click();
+      await page.getByRole('dialog').getByRole('button', { name: 'Salir' }).click();
+    }
     await expect(page.getByRole('button', { name: /^Texas Hold’em:/ })).toBeVisible();
     const chips = await chipsShown(page);
-    expect(chips).toBeGreaterThan(8000 - 1);
+    // Se recupera el stack de la mesa (0 si quedó eliminado).
+    expect(chips).toBeGreaterThanOrEqual(8000);
     await page.goto('/#/history');
     await expect(page.locator('.hist-item').first()).toBeVisible();
   });

@@ -17,6 +17,7 @@ import { estimateHouseEdge } from '../../engine/blackjack/houseEdge';
 import { fmtChips, fmtPct, fmtSignedChips } from '../../coach/format';
 import { LEVEL_NAMES_ES } from '../../ai/poker/bots';
 import type { BJLevel } from '../../ai/blackjack/strategy';
+import { WinBurst } from '../arcade/Shell';
 
 const CHIP_VALUES = [5, 25, 100, 500, 1000];
 const OUTCOME: Record<string, { t: string; c: string }> = {
@@ -193,7 +194,8 @@ export function BlackjackScreen() {
         {betting ? (
           <div className="bet-panel">
             {s.phase === 'settled' ? (
-              <div className="result-text center">
+              <div className="result-text center" style={{ position: 'relative' }}>
+                {roundNet > 0 ? <WinBurst intensity={human.hands.some((h) => h.outcome === 'blackjack') ? 2 : 1} /> : null}
                 <b className={roundNet > 0 ? 'good' : roundNet < 0 ? 'bad' : ''}>{roundNet > 0 ? `Ganaste ${fmtChips(roundNet)}` : roundNet < 0 ? `Perdiste ${fmtChips(-roundNet)}` : 'Empate'}</b>
                 {bj.lastReview.length ? <small>{bj.lastReview.map((d) => d.comment).join(' ')}</small> : null}
               </div>
