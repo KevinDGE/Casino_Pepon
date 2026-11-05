@@ -18,6 +18,7 @@ import { CryptoRng } from '../../core/rng';
 import { fmtChips, fmtChipsDec, fmtPct, fmtSignedChips } from '../../coach/format';
 import { play, vibrate } from '../../audio/sound';
 import { WinBurst } from '../arcade/Shell';
+import { addResult } from '../../ranking/periods';
 
 const rng = new CryptoRng();
 const CHIPS = [1, 5, 25, 100, 500, 1000];
@@ -104,6 +105,7 @@ export function RouletteScreen() {
       const net = returned - total;
       update((d) => {
         d.chips += returned;
+        d.ranking = addResult(d.ranking, net);
         const st = d.stats.roulette;
         st.spins++;
         st.wagered += total;

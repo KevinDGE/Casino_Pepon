@@ -10,6 +10,8 @@ import { History } from './screens/History';
 import { HowItWorks } from './screens/HowItWorks';
 import { Modal } from './components/Modal';
 import { navigate } from './router';
+import { RankingScreen } from './ranking/RankingScreen';
+import { RankingSync } from './ranking/useRanking';
 
 const PokerScreen = lazy(() => import('./poker/PokerScreen').then((m) => ({ default: m.PokerScreen })));
 const BlackjackScreen = lazy(() => import('./blackjack/BlackjackScreen').then((m) => ({ default: m.BlackjackScreen })));
@@ -48,7 +50,7 @@ function Routes() {
       lobby: 'Casino Pepón', poker: 'Póker · Casino Pepón', blackjack: 'Blackjack · Casino Pepón', roulette: 'Ruleta · Casino Pepón',
       videopoker: 'Video póker · Casino Pepón', baccarat: 'Baccarat · Casino Pepón', trescartas: 'Póker de 3 cartas · Casino Pepón',
       dados: 'Tres Dados · Casino Pepón', tragamonedas: 'Fiesta Pepona · Casino Pepón', keno: 'Keno · Casino Pepón', mayormenor: 'Mayor o Menor · Casino Pepón',
-      stats: 'Estadísticas · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
+      stats: 'Estadísticas · Casino Pepón', ranking: 'Ranking · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
     };
     document.title = titles[route] ?? 'Casino Pepón';
   }, [route]);
@@ -69,6 +71,7 @@ function Routes() {
     case 'history': return <History />;
     case 'how': return <HowItWorks />;
     case 'settings': return <Settings />;
+    case 'ranking': return <RankingScreen />;
     default: return <Lobby />;
   }
 }
@@ -80,6 +83,7 @@ export function App() {
         <a className="skip-link" href="#main">Saltar al contenido</a>
         <Routes />
         <BreakReminder />
+        <RankingSync />
       </AnnouncerProvider>
     </ProfileProvider>
   );

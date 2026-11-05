@@ -29,6 +29,7 @@ import { useAnnouncer } from '../announcer';
 import { play, vibrate } from '../../audio/sound';
 import { fmtChips } from '../../coach/format';
 import { handTotal } from '../../engine/blackjack/hand';
+import { addResult } from '../../ranking/periods';
 
 const rng = new CryptoRng();
 const SPEED_MS = { calm: 1100, normal: 700, fast: 260 } as const;
@@ -153,6 +154,7 @@ export function useBlackjack() {
       setLastReview(recs);
       update((d) => {
         d.chips = h.bankroll;
+        d.ranking = addResult(d.ranking, net);
         const st = d.stats.blackjack;
         st.rounds++;
         st.net += net;

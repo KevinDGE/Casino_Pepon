@@ -63,6 +63,7 @@ export function Stats() {
   const tone = (n: number) => (n > 0 ? 'good' : n < 0 ? 'bad' : undefined);
   return (
     <Page current="stats" title="Estadísticas">
+      <p className="small"><a href="#/history">Ver historial de manos y rondas →</a></p>
       <Segmented label="Juego" value={tab} onChange={setTab} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }, { value: 'mas', label: 'Más juegos' }]} />
       {tab === 'poker' ? (
         <>

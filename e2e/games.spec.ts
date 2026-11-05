@@ -114,3 +114,18 @@ for (const vp of [{ w: 360, h: 800 }, { w: 390, h: 844 }, { w: 768, h: 1024 }, {
     }
   });
 }
+
+test('ranking: periodos y resultado propio fuera de claude.ai', async ({ page }) => {
+  await seedProfile(page);
+  await page.goto('/#/mayormenor');
+  const higher = page.getByRole('button', { name: /^Mayor:/ });
+  if (await higher.isEnabled()) await higher.click(); else await page.getByRole('button', { name: /^Menor:/ }).click();
+  await expect(page.locator('.result-banner')).toBeVisible();
+  await page.goto('/#/ranking');
+  await expect(page.getByText(/funciona en la versión publicada en claude.ai/)).toBeVisible();
+  await expect(page.getByText(/1 ronda/)).toBeVisible();
+  for (const p of ['Diario', 'Semanal', 'Mensual']) {
+    await page.getByRole('radio', { name: p }).click();
+    await expect(page.locator('.rank-me-net')).toBeVisible();
+  }
+});

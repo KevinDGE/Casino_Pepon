@@ -3,6 +3,7 @@
  */
 import type { BlackjackRules } from '../engine/blackjack/types';
 import { DEFAULT_RULES } from '../engine/blackjack/types';
+import { emptyTotals, type PeriodTotals } from '../ranking/periods';
 
 export const STARTING_CHIPS = 10_000;
 export const SCHEMA_VERSION = 1;
@@ -187,6 +188,8 @@ export interface SavedProfile {
   pokerSetup: PokerSetup;
   blackjackSetup: BlackjackSetup;
   lastBets: { blackjack: number; roulette: { kind: string; numbers: number[]; amount: number }[] };
+  /** Fichas netas ganadas por periodo (para el ranking). Reiniciar fichas no cuenta. */
+  ranking: PeriodTotals;
 }
 
 export const DEFAULT_POKER_SETUP: PokerSetup = { rivals: 3, level: 'expert', bigBlind: 20, buyInBB: 100, blindIncreaseEvery: 0 };
@@ -205,6 +208,7 @@ export function defaultProfile(): SavedProfile {
     pokerSetup: { ...DEFAULT_POKER_SETUP },
     blackjackSetup: { ...DEFAULT_BJ_SETUP, rules: { ...DEFAULT_RULES } },
     lastBets: { blackjack: 100, roulette: [] },
+    ranking: emptyTotals(),
   };
 }
 

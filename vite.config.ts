@@ -29,12 +29,14 @@ function cspPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: './',
   plugins: [
     react(),
-    cspPlugin(),
+    // En claude.ai la página la sirve y encuadra la plataforma: sin CSP propia ni service worker.
+    mode === 'artifact' ? null : cspPlugin(),
     VitePWA({
+      disable: mode === 'artifact',
       registerType: 'autoUpdate',
       injectRegister: null,
       includeAssets: ['icons/*.svg', 'icons/*.png'],
@@ -66,10 +68,10 @@ export default defineConfig({
     }),
   ],
   worker: { format: 'es' },
-  build: { target: 'es2022', sourcemap: false },
+  build: { target: 'es2022', sourcemap: false, outDir: mode === 'artifact' ? 'dist-artifact' : 'dist' },
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
     testTimeout: 120_000,
   },
-});
+}));

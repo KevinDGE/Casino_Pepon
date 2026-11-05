@@ -15,6 +15,7 @@ import type { PokerSetup } from '../../persistence/schema';
 import { useProfile, uid } from '../store';
 import { useAnnouncer } from '../announcer';
 import { play, vibrate } from '../../audio/sound';
+import { addResult } from '../../ranking/periods';
 
 export interface SeatMeta {
   id: string;
@@ -240,6 +241,7 @@ export function usePokerTable() {
     const winners = [...new Set(g.result.pots.flatMap((p) => p.winners))].map((x) => (g.players[x]!.isHuman ? 'Tú' : g.players[x]!.name));
     const lines = handLines(g);
     update((d) => {
+      d.ranking = addResult(d.ranking, net);
       const st = d.stats.poker;
       st.hands++;
       if (net > 0) st.handsWon++;

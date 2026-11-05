@@ -25,6 +25,7 @@ const PATHS: Record<string, string> = {
   dot: 'M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
   pause: 'M8 5v14m8-14v14',
   keyboard: 'M3 6h18v12H3zm4 3h.01M11 9h.01M15 9h.01M7 13h10',
+  trophy: 'M8 21h8m-4-4v4M7 4h10v5a5 5 0 0 1-10 0zm0 1H4a3 3 0 0 0 3 4m10-4h3a3 3 0 0 1-3 4',
 };
 
 export function Icon({ name, size = 22, title }: { name: keyof typeof PATHS | string; size?: number; title?: string }) {

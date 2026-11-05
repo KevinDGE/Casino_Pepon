@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useProfile, uid } from '../store';
 import { emptyArcadeStats } from '../../persistence/schema';
+import { addResult } from '../../ranking/periods';
 
 /**
  * Billetera común para los juegos adicionales: descuenta la apuesta al jugar
@@ -23,6 +24,7 @@ export function useWallet(game: string) {
       const net = ret - wagered;
       update((d) => {
         d.chips += ret - extraDebit;
+        d.ranking = addResult(d.ranking, net);
         const st = (d.stats.arcade[game] ??= emptyArcadeStats());
         st.rounds++;
         st.wagered += wagered;

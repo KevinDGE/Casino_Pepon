@@ -5,10 +5,11 @@ import { navigate, type Route } from '../router';
 import { useProfile } from '../store';
 import { fmtChips } from '../../coach/format';
 
-const NAV: { route: Route; label: string; icon: string }[] = [
+const NAV: { route: Route; label: string; icon: string; mobile?: boolean }[] = [
   { route: 'lobby', label: 'Inicio', icon: 'home' },
+  { route: 'ranking', label: 'Ranking', icon: 'trophy' },
   { route: 'stats', label: 'Estadísticas', icon: 'chart' },
-  { route: 'history', label: 'Historial', icon: 'history' },
+  { route: 'history', label: 'Historial', icon: 'history', mobile: false },
   { route: 'how', label: 'Cómo funciona', icon: 'book' },
   { route: 'settings', label: 'Ajustes', icon: 'gear' },
 ];
@@ -57,7 +58,7 @@ export function TopBar({ title, back, right, current }: { title?: string; back?:
 export function BottomNav({ current }: { current: Route }) {
   return (
     <nav className="bottomnav" aria-label="Navegación">
-      {NAV.map((n) => (
+      {NAV.filter((n) => n.mobile !== false).map((n) => (
         <a key={n.route} href={`#/${n.route === 'lobby' ? '' : n.route}`} className={current === n.route ? 'active' : ''} aria-current={current === n.route ? 'page' : undefined}>
           <Icon name={n.icon} />
           <span>{n.label === 'Cómo funciona' ? 'Reglas' : n.label}</span>

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 
 export type Route =
   | 'lobby' | 'poker' | 'blackjack' | 'roulette' | 'stats' | 'history' | 'how' | 'settings'
-  | 'videopoker' | 'baccarat' | 'trescartas' | 'dados' | 'tragamonedas' | 'keno' | 'mayormenor';
+  | 'videopoker' | 'baccarat' | 'trescartas' | 'dados' | 'tragamonedas' | 'keno' | 'mayormenor' | 'ranking';
 const ROUTES: Route[] = [
   'lobby', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings',
-  'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor',
+  'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor', 'ranking',
 ];
 
 function parse(): { route: Route; sub: string } {

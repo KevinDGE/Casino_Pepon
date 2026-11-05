@@ -290,3 +290,25 @@ html[data-motion='reduce'] .gold-text, html[data-motion='reduce'] .btn-gold::aft
   .hero-balance .btn { margin-left: auto; }
 }
 @media (max-width: 559px) { .hero-visual { overflow: hidden; } .hero { overflow-x: clip; } }
+
+/* Ranking */
+.rank-period { color: var(--muted); margin: -4px 0 12px; text-transform: capitalize; }
+.rank-me { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: linear-gradient(160deg, rgba(227, 189, 98, 0.14), rgba(14, 32, 24, 0.95)); }
+.rank-me > div { display: flex; flex-direction: column; }
+.rank-me-net { font-family: var(--serif); font-size: 2rem; font-variant-numeric: tabular-nums; }
+.sync-pill { font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.sync-synced { color: #c9f7d9; border-color: rgba(74, 222, 128, 0.45); }
+.sync-readonly, .sync-error { color: #fde7b0; border-color: rgba(251, 191, 36, 0.45); }
+.rank-list { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 6px; }
+.rank-row { display: grid; grid-template-columns: 38px 36px 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line-soft); animation: rise 0.3s ease both; }
+.rank-row.me { border-color: var(--gold-2); box-shadow: 0 0 0 1px rgba(246, 220, 150, 0.35); }
+.rank-row.top-1 { background: linear-gradient(90deg, rgba(246, 220, 150, 0.22), var(--panel)); }
+.rank-row.top-2 { background: linear-gradient(90deg, rgba(200, 210, 225, 0.16), var(--panel)); }
+.rank-row.top-3 { background: linear-gradient(90deg, rgba(205, 127, 50, 0.18), var(--panel)); }
+.rank-pos { font-weight: 900; text-align: center; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.rank-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: inline-block; }
+.rank-name { display: flex; flex-direction: column; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-name small { color: var(--muted); font-weight: 500; }
+.rank-net { font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+
+@media (min-width: 900px) { .lobby-info { grid-template-columns: repeat(3, 1fr); } }

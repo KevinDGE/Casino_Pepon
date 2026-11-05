@@ -8,3 +8,4 @@ playwright-report
 .DS_Store
 reports/tmp
 reports/*.log
+dist-artifact
