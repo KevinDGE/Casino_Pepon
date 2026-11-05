@@ -11,7 +11,7 @@ const CSP = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   worker: { format: 'es' },
-  build: { target: 'es2022', sourcemap: false, outDir: mode === 'artifact' ? 'dist-artifact' : 'dist' },
+  build: { target: 'es2022', sourcemap: false, outDir: mode === 'artifact' ? 'dist-artifact' : 'dist', chunkSizeWarningLimit: 600 },
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',

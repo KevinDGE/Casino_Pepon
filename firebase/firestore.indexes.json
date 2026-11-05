@@ -1,0 +1,7 @@
+{
+  "indexes": [
+    { "collectionGroup": "ranking", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "day", "order": "ASCENDING" }, { "fieldPath": "dayNet", "order": "DESCENDING" }] },
+    { "collectionGroup": "ranking", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "week", "order": "ASCENDING" }, { "fieldPath": "weekNet", "order": "DESCENDING" }] },
+    { "collectionGroup": "ranking", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "month", "order": "ASCENDING" }, { "fieldPath": "monthNet", "order": "DESCENDING" }] }
+  ]
+}

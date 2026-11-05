@@ -7,6 +7,8 @@ import { useProfile } from '../store';
 import { useLandscape } from '../hooks';
 import { useOnline } from './useOnline';
 import { rotateForView } from './rotate';
+import { useBackend } from '../ranking/useRanking';
+import { AliasEditor } from '../ranking/AliasEditor';
 import { PokerTableView } from '../poker/PokerTableView';
 import { ActionBar } from '../poker/ActionBar';
 import type { SeatMeta } from '../poker/usePokerTable';
@@ -106,6 +108,8 @@ function Lobby({ o }: { o: ReturnType<typeof useOnline> }) {
 
 export function OnlineScreen() {
   const o = useOnline();
+  const be = useBackend();
+  const firebase = be?.kind === 'firebase';
   const landscape = useLandscape();
   const [raiseOpen, setRaiseOpen] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -118,7 +122,10 @@ export function OnlineScreen() {
         {o.available === 'no' ? (
           <div className="notice">El juego en línea funciona en la versión publicada del casino en claude.ai, donde los jugadores comparten mesa. Aquí puedes jugar contra la IA en Texas Hold’em.</div>
         ) : null}
-        {o.available === 'signedout' ? <div className="notice">Inicia sesión en claude.ai para jugar en línea.</div> : null}
+        {o.available === 'signedout' ? (
+          <div className="notice">{firebase ? 'No se pudo iniciar tu sesión anónima para jugar en línea. Revisa tu conexión y vuelve a abrir la página.' : 'Inicia sesión en claude.ai para jugar en línea.'}</div>
+        ) : null}
+        {be && firebase && o.available === 'yes' ? <AliasEditor be={be} /> : null}
         {o.error === 'readonly' ? <div className="notice">Tu acceso a este casino es de sólo lectura. Para jugar en línea, pide a quien lo compartió acceso de colaborador.</div> : null}
         {o.available === 'yes' ? <Lobby o={o} /> : null}
       </Page>

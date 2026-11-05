@@ -1,4 +1,4 @@
-# Publica Casino Pepón en GitHub Pages (versión PWA: juegos contra la IA, sin mesas en línea ni ranking compartido).
+# Publica Casino Pepón en GitHub Pages (versión PWA con ranking y póker en línea sobre Firebase).
 # Requisito único: Settings → Pages → Build and deployment → Source: "GitHub Actions".
 name: Publicar en GitHub Pages
 
@@ -30,6 +30,8 @@ jobs:
         run: npm test
       - name: Construir
         run: npm run build
+        env:
+          VITE_BACKEND: firebase
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

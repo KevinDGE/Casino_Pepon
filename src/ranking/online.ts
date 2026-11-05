@@ -1,7 +1,9 @@
 /**
- * Ranking en línea sobre la base de datos compartida del Artifact de claude.ai
- * (capacidades `db` y `user`). Fuera de claude.ai (build local, otro hosting)
- * `window.claude` no existe y el ranking funciona sólo con tus propios datos.
+ * Ranking en línea. Dos backends con la misma forma:
+ *  - claude.ai: la base de datos compartida del Artifact (capacidades `db` y `user`);
+ *  - GitHub Pages: Firebase (sesión anónima + Firestore), si la build se hizo
+ *    con `VITE_BACKEND=firebase` (ver `firebase.ts`).
+ * En cualquier otra build el ranking funciona sólo con tus propios datos.
  *
  * Modelo: un documento por persona, `ranking/<id>`, con sus fichas netas del
  * día, la semana y el mes vigentes. Todos leen; cada quien escribe sólo el suyo
@@ -30,7 +32,14 @@ export interface RankingBackend {
   db: DbApi;
   user: UserApi;
   myId: string | null;
+  /** De dónde vienen los datos: el Artifact de claude.ai o Firebase. */
+  kind?: 'claude' | 'firebase';
+  /** Sólo en Firebase: el apodo con el que apareces (no hay cuentas). */
+  alias?: { get(): string; set(alias: string): Promise<void> };
 }
+
+/** ¿Esta build usa Firebase cuando no hay claude.ai? (lo fija la build de GitHub Pages). */
+const USE_FIREBASE = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_BACKEND === 'firebase';
 
 let backendPromise: Promise<RankingBackend | null> | null = null;
 
@@ -39,7 +48,9 @@ export function getRankingBackend(): Promise<RankingBackend | null> {
   if (backendPromise) return backendPromise;
   const host = (globalThis as { claude?: ClaudeHost }).claude;
   if (!host || typeof host.use !== 'function') {
-    backendPromise = Promise.resolve(null);
+    backendPromise = USE_FIREBASE
+      ? import('./firebase').then((m) => m.createFirebaseBackend()).catch(() => null)
+      : Promise.resolve(null);
     return backendPromise;
   }
   backendPromise = (async () => {
@@ -47,7 +58,7 @@ export function getRankingBackend(): Promise<RankingBackend | null> {
       const [db, user] = (await Promise.all([host.use('db'), host.use('user')])) as [DbApi | null, UserApi | null];
       if (!db || !user) return null;
       const myId = await user.id();
-      return { db, user, myId };
+      return { db, user, myId, kind: 'claude' as const };
     } catch {
       return null;
     }
