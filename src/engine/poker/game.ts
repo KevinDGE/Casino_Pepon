@@ -181,6 +181,35 @@ function drawCard(state: PokerState): number {
   return c;
 }
 
+/**
+ * Multijugador con mazo cifrado: reanuda una mano en espera una vez que el
+ * mazo (o las cartas propias de los jugadores en el showdown) ya tienen valores.
+ */
+export function continueHand(state: PokerState): void {
+  if (state.phase === 'awaitCards') {
+    state.phase = 'betting';
+    state.awaiting = null;
+    advanceStreet(state, true);
+  } else if (state.phase === 'awaitShowdown') {
+    state.phase = 'betting';
+    state.awaiting = null;
+    showdown(state);
+  }
+}
+
+/** Posiciones del mazo de las cartas propias de cada asiento (orden de reparto). */
+export function holePositions(state: PokerState): Record<number, [number, number]> {
+  const alivePlayers = state.players.filter((p) => !p.out);
+  const n = alivePlayers.length;
+  const out: Record<number, [number, number]> = {};
+  let s = state.button;
+  for (let k = 0; k < n; k++) {
+    s = nextSeat(state, s, (p) => !p.out);
+    out[s] = [k, k + n];
+  }
+  return out;
+}
+
 function postBlind(state: PokerState, seat: number, amount: number, blind: 'SB' | 'BB'): void {
   const p = state.players[seat]!;
   const a = Math.min(amount, p.stack);
@@ -325,9 +354,12 @@ function returnUncalled(state: PokerState): void {
   }
 }
 
-function advanceStreet(state: PokerState): void {
+function advanceStreet(state: PokerState, resuming = false): void {
   // Mientras no se pueda apostar más, repartir todo hasta el showdown.
   for (;;) {
+    if (resuming) {
+      resuming = false;
+    } else {
     returnUncalled(state);
     for (const p of state.players) {
       p.bet = 0;
@@ -337,13 +369,22 @@ function advanceStreet(state: PokerState): void {
     state.currentBet = 0;
     state.minRaise = state.bigBlind;
     state.raiseSeq = 0;
+    }
     if (state.street === 'river') {
       showdown(state);
       return;
     }
     const nextStreet: Street = state.street === 'preflop' ? 'flop' : state.street === 'flop' ? 'turn' : 'river';
-    drawCard(state); // quemar
     const n = nextStreet === 'flop' ? 3 : 1;
+    // Mazo cifrado: si las cartas de esta calle aún no se conocen, esperar.
+    const positions = Array.from({ length: n }, (_, i) => state.deckPos + 1 + i);
+    if (positions.some((pos) => (state.deck[pos] ?? -1) < 0)) {
+      state.phase = 'awaitCards';
+      state.toAct = null;
+      state.awaiting = { kind: 'cards', street: nextStreet, positions };
+      return;
+    }
+    drawCard(state); // quemar
     for (let i = 0; i < n; i++) state.board.push(drawCard(state));
     state.street = nextStreet;
     state.log.push({ t: 'street', street: nextStreet, board: state.board.slice() });
@@ -405,6 +446,14 @@ export function buildPots(players: readonly PokerPlayer[]): Pot[] {
 
 function showdown(state: PokerState): void {
   const contenders = state.players.filter(inHand);
+  // Mazo cifrado: hacen falta las cartas propias de quienes llegan al showdown.
+  const hidden = contenders.filter((p) => p.hole.some((c) => c < 0)).map((p) => p.seat);
+  if (hidden.length) {
+    state.phase = 'awaitShowdown';
+    state.toAct = null;
+    state.awaiting = { kind: 'showdown', seats: contenders.map((p) => p.seat) };
+    return;
+  }
   const scores: Record<number, number> = {};
   for (const p of contenders) {
     const s = evaluate([...p.hole, ...state.board]);

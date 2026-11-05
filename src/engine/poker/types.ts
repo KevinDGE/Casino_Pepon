@@ -82,7 +82,13 @@ export interface PokerState {
   toAct: number | null;
   lastAggressor: number | null;
   handNumber: number;
-  phase: 'idle' | 'betting' | 'handOver' | 'gameOver';
+  /**
+   * 'awaitCards' / 'awaitShowdown': sólo en póker multijugador con cartas cifradas
+   * (valor −1 en el mazo): la mano espera a que se descifren cartas.
+   */
+  phase: 'idle' | 'betting' | 'awaitCards' | 'awaitShowdown' | 'handOver' | 'gameOver';
+  /** Posiciones del mazo (o asientos) que faltan por revelar cuando la mano está en espera. */
+  awaiting?: { kind: 'cards'; street: Street; positions: number[] } | { kind: 'showdown'; seats: number[] } | null;
   log: HandEvent[];
   /** Asientos cuyas cartas son públicas (showdown). */
   revealed: number[];
