@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 
 export type Route =
   | 'lobby' | 'poker' | 'blackjack' | 'roulette' | 'stats' | 'history' | 'how' | 'settings'
-  | 'videopoker' | 'baccarat' | 'trescartas' | 'dados' | 'tragamonedas' | 'keno' | 'mayormenor' | 'ranking';
+  | 'videopoker' | 'baccarat' | 'trescartas' | 'dados' | 'tragamonedas' | 'keno' | 'mayormenor' | 'ranking' | 'online';
 const ROUTES: Route[] = [
   'lobby', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings',
-  'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor', 'ranking',
+  'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor', 'ranking', 'online',
 ];
 
 /**
@@ -17,7 +17,7 @@ const ROUTES: Route[] = [
 const HASH: Record<Route, string> = {
   lobby: 'inicio', poker: 'poker', blackjack: 'blackjack', roulette: 'ruleta', stats: 'estadisticas', history: 'historial',
   how: 'reglas', settings: 'ajustes', videopoker: 'videopoker', baccarat: 'baccarat', trescartas: 'trescartas', dados: 'dados',
-  tragamonedas: 'tragamonedas', keno: 'keno', mayormenor: 'mayormenor', ranking: 'ranking',
+  tragamonedas: 'tragamonedas', keno: 'keno', mayormenor: 'mayormenor', ranking: 'ranking', online: 'en-linea',
 };
 const FROM_HASH = new Map<string, Route>(Object.entries(HASH).map(([r, h]) => [h, r as Route]));
 

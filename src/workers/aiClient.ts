@@ -84,3 +84,12 @@ export async function requestThreeCardEV(hand: number[]): Promise<{ play: number
   if (r.type !== 'tcEV') throw new Error('Respuesta inesperada');
   return { play: r.play, fold: r.fold };
 }
+
+const crypto = new WorkerChannel();
+
+/** Paso criptográfico del póker mental (cifrar y barajar o quitar mi capa), en el worker. */
+export async function requestMentalStep(pending: import('../mp/protocol').Pending, me: string, e: string, d: string) {
+  const r = await crypto.request({ type: 'mpStep', pending, me, e, d });
+  if (r.type !== 'mpStep') throw new Error('Respuesta inesperada');
+  return r.patch;
+}

@@ -97,6 +97,8 @@ export function GameArt({ game }: { game: string }) {
   switch (game) {
     case 'poker':
       return box(<>{card(62, 48, -14, 'A♠')}{card(80, 44, 0, 'A♥', true)}{card(98, 48, 14, 'K♦', true)}<circle cx="130" cy="70" r="11" fill="#c8283c" stroke="#f4ecd8" strokeWidth="3" strokeDasharray="4 3" /><circle cx="30" cy="68" r="11" fill="#2563eb" stroke="#f4ecd8" strokeWidth="3" strokeDasharray="4 3" /></>);
+    case 'online':
+      return box(<>{card(44, 48, -16, 'K♠')}{card(62, 44, -4, 'K♥', true)}{card(98, 44, 4, 'A♦', true)}{card(116, 48, 16, 'A♣')}<circle cx="80" cy="22" r="9" fill="#4ade80" /><path d="M74 22h12M80 16v12" stroke="#0a2e22" strokeWidth="3" /><text x="80" y="80" textAnchor="middle" fontSize="9" fontWeight="800" fill="#f6dc96" fontFamily="sans-serif">EN VIVO</text></>);
     case 'blackjack':
       return box(<>{card(68, 46, -10, 'A♣')}{card(90, 46, 8, 'K♥', true)}<text x="122" y="30" fontSize="20" fontWeight="900" fill="#f6dc96" fontFamily="serif">21</text></>);
     case 'roulette':

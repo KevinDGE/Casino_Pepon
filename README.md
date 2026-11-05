@@ -62,6 +62,15 @@ y abre `http://localhost:4173`.
 
 Los resultados más recientes están en [`reports/REPORTE.md`](reports/REPORTE.md).
 
+## Póker en línea (multijugador en tiempo real)
+
+En la versión publicada en claude.ai, **Póker en línea** permite crear mesas de Texas Hold'em de 2 a 6 personas o sentarse en una abierta. No hay servidor: la mesa funciona sobre la base de datos compartida del Artifact y cada navegador reconstruye la mano de forma determinista con el mismo motor de reglas.
+
+- **Nadie ve tus cartas, ni quien hospeda la mesa.** Se usa *póker mental* con cifrado conmutativo SRA (primo seguro de 1024 bits). Cada jugador cifra y baraja el mazo por turnos con su propia clave secreta; cada carta propia se descifra sólo en el navegador de su dueño y las comunitarias se revelan cuando todos quitan su capa. Las cartas de quienes se retiran nunca se revelan.
+- Las cartas reveladas se verifican: si alguien publica una carta inválida o repetida, la mano se anula. Si alguien se desconecta, quien hospeda lo retira de su turno o anula la mano sin que nadie pierda fichas.
+- Cada persona escribe sólo su propio documento (`mp/<id>`) y nadie puede alterar el de otro.
+- El coach está desactivado en estas mesas para que el juego sea justo entre personas. Los resultados cuentan para el ranking.
+
 ## Jugar en línea y ranking
 
 La versión en línea está publicada como Artifact de claude.ai: **https://claude.ai/artifact/5LL37jdE1v1oMNnKG3sP5r**. Es privada por defecto; quien la publicó la comparte desde el menú *Compartir* de la página.

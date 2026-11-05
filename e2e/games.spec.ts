@@ -1,10 +1,10 @@
 import { test, expect, seedProfile, chipsShown, noHorizontalScroll } from './fixtures';
 
 test.describe('Juegos adicionales', () => {
-  test('lobby: 10 juegos y filtro por categoría', async ({ page }) => {
+  test('lobby: 11 juegos y filtro por categoría', async ({ page }) => {
     await seedProfile(page);
     await page.goto('/');
-    await expect(page.locator('.game-card')).toHaveCount(10);
+    await expect(page.locator('.game-card')).toHaveCount(11);
     await page.getByRole('radio', { name: /^Máquinas/ }).click();
     await expect(page.locator('.game-card')).toHaveCount(2);
     await page.getByRole('radio', { name: /^Todos/ }).click();

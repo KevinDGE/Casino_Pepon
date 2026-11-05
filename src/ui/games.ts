@@ -21,6 +21,7 @@ export const CATEGORY_NAMES: Record<GameCategory | 'todos', string> = {
 };
 
 export const GAMES: GameInfo[] = [
+  { route: 'online', name: 'Póker en línea', tag: 'Multijugador en tiempo real', desc: 'Mesas de 2 a 6 personas. Póker mental: nadie ve tus cartas, ni quien hospeda la mesa.', category: 'cartas', edge: 'Juego entre personas', isNew: true, smart: 'Cartas cifradas' },
   { route: 'poker', name: 'Texas Hold’em', tag: 'No-Limit · 1 a 5 rivales de IA', desc: 'Rivales que calculan equity, rangos y pot odds. El coach te explica cada decisión.', category: 'cartas', edge: 'Juego entre jugadores', smart: 'IA experta + coach' },
   { route: 'blackjack', name: 'Blackjack', tag: 'Reglas configurables', desc: 'Pedir, plantarse, doblar, dividir y seguro con EV exacto de cada acción.', category: 'mesa', edge: 'Casa ≈ 0.4 % jugando perfecto', smart: 'Coach con EV' },
   { route: 'roulette', name: 'Ruleta europea', tag: 'Un solo cero', desc: 'Todas las apuestas, historial y probabilidades sin estrategias mágicas.', category: 'mesa', edge: 'Casa 2.70 %' },

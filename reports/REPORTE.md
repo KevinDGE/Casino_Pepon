@@ -7,8 +7,8 @@ Fecha: 2026-11-05 · Entorno: Node 22, Chromium (Playwright 1.63), 4 núcleos.
 | Área | Resultado |
 |---|---|
 | Compilación (`tsc -b` estricto + `vite build`) | Sin errores ni advertencias de tipos. Bundle inicial 294 KB (97.6 KB gzip); pantallas de juego cargadas bajo demanda; 24 recursos precacheados para uso offline. |
-| Pruebas unitarias (Vitest) | **123 / 123** aprobadas en 10 archivos (~10 s). |
-| Pruebas end-to-end y responsivas (Playwright) | **45 / 45** aprobadas (~42 s). |
+| Pruebas unitarias (Vitest) | **131 / 131** aprobadas en 12 archivos (~10 s), incluidas la criptografía SRA y una mesa multijugador simulada de 3 personas. |
+| Pruebas end-to-end y responsivas (Playwright) | **46 / 46** aprobadas (~47 s), incluida una mano en línea completa entre dos navegadores independientes. |
 | Ranking en línea | Verificado en el Artifact publicado: un visitante de sólo lectura lee el ranking con la consulta de la página; un colaborador no puede modificar el puntaje de otra persona. |
 | Simulaciones | 10 M manos de póker, 10 M giros de ruleta, 9.5 M rondas de blackjack y 13 M rondas de los 7 juegos adicionales: todas coinciden con la teoría. |
 | Torneos de IA | El **Experto vence** a Avanzado, Intermedio y Principiante con IC 95 % muy por encima de cero en 50,000 manos por enfrentamiento. |

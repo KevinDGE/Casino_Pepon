@@ -22,6 +22,7 @@ const ThreeCardScreen = lazy(() => import('./arcade/ThreeCardScreen').then((m) =
 const DiceScreen = lazy(() => import('./arcade/DiceScreen').then((m) => ({ default: m.DiceScreen })));
 const SlotsScreen = lazy(() => import('./arcade/SlotsScreen').then((m) => ({ default: m.SlotsScreen })));
 const KenoScreen = lazy(() => import('./arcade/KenoScreen').then((m) => ({ default: m.KenoScreen })));
+const OnlineScreen = lazy(() => import('./mp/OnlineScreen').then((m) => ({ default: m.OnlineScreen })));
 const HiLoScreen = lazy(() => import('./arcade/HiLoScreen').then((m) => ({ default: m.HiLoScreen })));
 
 /** Recordatorio de pausa opcional, sin presión: sólo informa. */
@@ -50,7 +51,7 @@ function Routes() {
       lobby: 'Casino Pepón', poker: 'Póker · Casino Pepón', blackjack: 'Blackjack · Casino Pepón', roulette: 'Ruleta · Casino Pepón',
       videopoker: 'Video póker · Casino Pepón', baccarat: 'Baccarat · Casino Pepón', trescartas: 'Póker de 3 cartas · Casino Pepón',
       dados: 'Tres Dados · Casino Pepón', tragamonedas: 'Fiesta Pepona · Casino Pepón', keno: 'Keno · Casino Pepón', mayormenor: 'Mayor o Menor · Casino Pepón',
-      stats: 'Estadísticas · Casino Pepón', ranking: 'Ranking · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
+      stats: 'Estadísticas · Casino Pepón', ranking: 'Ranking · Casino Pepón', online: 'Póker en línea · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
     };
     document.title = titles[route] ?? 'Casino Pepón';
   }, [route]);
@@ -72,6 +73,7 @@ function Routes() {
     case 'how': return <HowItWorks />;
     case 'settings': return <Settings />;
     case 'ranking': return <RankingScreen />;
+    case 'online': return <Suspense fallback={fallback}><OnlineScreen /></Suspense>;
     default: return <Lobby />;
   }
 }

@@ -61,6 +61,14 @@
 - **Billetera común** (`useWallet`): descuenta la apuesta al jugar y registra estadísticas e historial al liquidar. Si se sale durante una animación, el resultado ya decidido se liquida igual; si se sale a mitad de una decisión (video póker, póker de 3 cartas), la mano se completa con la estrategia óptima/simple.
 - **Celebraciones:** explosión de fichas y confeti sólo con ganancia neta; "¡Gran premio!" a partir de 10× lo apostado; se desactivan con reducción de movimiento.
 
+## Multijugador en tiempo real
+
+- **Sin servidor:** cada jugador publica sólo su documento `mp/<id>` (regla `mp/{self}`); todos los de la mesa lo leen en vivo. La mano se reconstruye de forma pura y determinista en cada navegador (`src/mp/protocol.ts`) a partir de la alineación que publica quien hospeda (jugadores, fichas, botón) y de los mensajes de cada jugador.
+- **Póker mental (SRA):** primo seguro de 1024 bits; las cartas se codifican como residuos cuadráticos. Barajado en cadena (cada quien cifra y permuta), pase de reparto (cada quien quita su capa de las cartas ajenas; la última capa de tus cartas sólo la quitas tú), revelado de cada calle (todos quitan su capa) y, en el showdown, sólo quienes siguen en la mano publican su clave. Las operaciones corren en un Web Worker (~150 ms por paso de barajado).
+- **Motor con cartas cifradas:** el mazo usa −1 para cartas aún desconocidas; el motor se pausa (`awaitCards`, `awaitShowdown`) y continúa con `continueHand` cuando se descifran. El juego contra la IA no cambia.
+- **Quien hospeda** sólo arma la alineación de cada mano, retira por inactividad (50 s) y anula manos atoradas. No puede ver cartas ajenas ni falsificar acciones de otros.
+- **Probado** con una simulación completa de 3 jugadores durante 6 manos (privacidad, conservación de fichas, reconstrucciones idénticas, detección de una carta manipulada) y una prueba e2e con dos navegadores independientes que juegan una mano completa.
+
 ## Ranking en línea
 
 - **Dónde vive:** la app no tiene servidor propio; el ranking usa la base de datos compartida del Artifact de claude.ai. Fuera de claude.ai la pantalla de ranking funciona en modo local.
@@ -95,6 +103,7 @@
 5. **Zapato de blackjack:** no se guarda entre sesiones; al abrir la app se baraja uno nuevo.
 6. **Persistencia:** sólo local (por navegador y dispositivo). Borrar los datos del sitio borra el progreso. Si se cierra la pestaña de golpe durante una ronda de blackjack o un giro, esa ronda puede quedar sin liquidar (la apuesta ya descontada no se devuelve).
 7. **Sonido:** efectos sintetizados sencillos; algunos navegadores sólo permiten audio tras una interacción.
-8. **Ranking:** el puntaje se calcula en el navegador de cada persona, así que alguien con conocimientos técnicos podría publicar un número falso para su propio documento (no puede tocar el de otros). Para un ranking a prueba de trampas haría falta un servidor que ejecute las partidas. En claude.ai, quien sólo tiene acceso de lectura ve el ranking pero no aparece en él.
-9. **Juegos adicionales:** baccarat usa la ventaja de la casa publicada para 8 mazos (verificada por simulación) en lugar de un cálculo combinatorio propio; el keno de 9–10 números y la tragamonedas tienen premios tan raros que su RTP simulado en 1–2 M rondas puede desviarse varios puntos del exacto.
-10. **Pruebas e2e:** se ejecutan en Chromium. La app usa APIs estándar (Web Workers de módulo, Service Worker, Web Audio) disponibles en Safari y Firefox modernos, pero no se automatizaron pruebas en esos motores.
+8. **Multijugador:** sin servidor, la verificación es parcial: se detectan cartas inválidas o repetidas al revelarse, pero no se prueba criptográficamente que cada barajado sea una permutación honesta (requeriría pruebas de conocimiento cero o revelar todas las claves, lo que mostraría las cartas de quienes se retiraron). Las fichas de la mesa las calcula cada navegador y quien hospeda publica las de cada mano; un anfitrión malicioso podría alterarlas (cada jugador ve sus propias fichas). Repartir tarda unos segundos porque cada carta pasa por todos los jugadores. Si quien hospeda se va, la mesa se cierra y cada quien recupera sus fichas de la última mano completa. Quien tenga acceso de sólo lectura no puede sentarse.
+9. **Ranking:** el puntaje se calcula en el navegador de cada persona, así que alguien con conocimientos técnicos podría publicar un número falso para su propio documento (no puede tocar el de otros). Para un ranking a prueba de trampas haría falta un servidor que ejecute las partidas. En claude.ai, quien sólo tiene acceso de lectura ve el ranking pero no aparece en él.
+10. **Juegos adicionales:** baccarat usa la ventaja de la casa publicada para 8 mazos (verificada por simulación) en lugar de un cálculo combinatorio propio; el keno de 9–10 números y la tragamonedas tienen premios tan raros que su RTP simulado en 1–2 M rondas puede desviarse varios puntos del exacto.
+11. **Pruebas e2e:** se ejecutan en Chromium. La app usa APIs estándar (Web Workers de módulo, Service Worker, Web Audio) disponibles en Safari y Firefox modernos, pero no se automatizaron pruebas en esos motores.
