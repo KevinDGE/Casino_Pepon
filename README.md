@@ -92,6 +92,14 @@ y publica `dist-artifact/casino-pepon.html` con los archivos listados en `dist-a
 
 ## Despliegue
 
+### GitHub Pages (automático)
+
+El flujo `.github/workflows/pages.yml` corre las pruebas unitarias, construye la PWA y la publica en **https://kevindge.github.io/Casino_Pepon/** en cada cambio a `main` (también se puede lanzar a mano desde *Actions → Publicar en GitHub Pages → Run workflow*). Sólo hay que activarlo una vez en *Settings → Pages → Build and deployment → Source: GitHub Actions*.
+
+Esa versión no necesita cuenta: abre en cualquier navegador, se instala como app y funciona sin conexión, con todos los juegos contra la IA. Las mesas en línea y el ranking compartido sólo existen en la versión de claude.ai.
+
+### Otros hostings
+
 La app es estática: el contenido de `dist/` se puede servir desde cualquier hosting de archivos (GitHub Pages, Netlify, Cloudflare Pages, Vercel, un bucket S3, Nginx…). Se construye con rutas relativas (`base: './'`) y enrutamiento por hash, así que funciona también en subcarpetas.
 
 ```bash
