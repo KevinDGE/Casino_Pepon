@@ -289,7 +289,7 @@ input[type='range'] { accent-color: var(--gold); min-height: 32px; }
 .bet-stack { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 3px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(246, 220, 150, 0.25); font-weight: 750; font-size: 0.8rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* ── Páginas de juego ── */
-.game-page { height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
+.game-page { height: 100dvh; width: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
 .game-page .topbar { position: relative; }
 .table-wrap-area { position: relative; min-height: 0; padding: 0 var(--safe-r) 0 var(--safe-l); }
 .dock { position: relative; z-index: 5; display: flex; flex-direction: column; gap: 8px; padding: 8px calc(10px + var(--safe-r)) calc(10px + var(--safe-b)) calc(10px + var(--safe-l)); background: linear-gradient(0deg, rgba(4, 10, 8, 0.98), rgba(4, 10, 8, 0.82)); border-top: 1px solid var(--line-soft); max-width: 100%; }
@@ -307,7 +307,8 @@ input[type='range'] { accent-color: var(--gold); min-height: 32px; }
 .pot-label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .pot-amount { font-weight: 800; color: var(--gold-2); }
 .side-pots { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-size: 0.75rem; color: var(--muted); }
-.seat { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 3; transition: opacity 0.3s, filter 0.3s; max-width: 30vw; }
+.seat { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 3; transition: opacity 0.3s, filter 0.3s; max-width: 32vw; }
+.seat-plate { max-width: 32vw; }
 .seat-cards { display: flex; gap: 2px; min-height: 16px; }
 .seat-cards .pcard-xs + .pcard-xs { margin-left: -10px; transform: rotate(8deg); }
 .seat-cards-human { gap: 6px; margin-bottom: 2px; }
@@ -547,7 +548,7 @@ html[data-motion='reduce'] *, html[data-motion='reduce'] *::before, html[data-mo
 
 @media (max-width: 420px) {
   .seat .avatar { width: 30px; height: 30px; font-size: 0.68rem; }
-  .seat-name { font-size: 0.7rem; max-width: 19vw; }
+  .seat-name { font-size: 0.7rem; max-width: 17vw; }
   .seat-stack { font-size: 0.74rem; }
   .seat-plate { gap: 4px; padding-right: 7px; }
 }

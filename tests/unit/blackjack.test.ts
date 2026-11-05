@@ -358,3 +358,19 @@ describe('Blackjack: conservación de fichas y niveles de IA', () => {
     }
   });
 });
+
+describe('Blackjack: zapato', () => {
+  it('con 1 mazo y muchas divisiones nunca se agota el zapato (40,000 rondas con 5 asientos)', () => {
+    const r = new SeededRng(31);
+    const t = createBlackjack({ ...DEFAULT_RULES, decks: 1, maxHands: 4, resplitAces: true, penetration: 0.9 }, [0, 1, 2, 3, 4].map((i) => ({ id: `s${i}`, name: `S${i}`, isHuman: false, bankroll: 1e12 })), r);
+    for (let round = 0; round < 40_000; round++) {
+      startRound(t, [10, 10, 10, 10, 10], r);
+      if (t.phase === 'insurance') t.seats.forEach((_, i) => decideInsurance(t, i, 0));
+      while (t.phase === 'playing') {
+        const l = getLegal(t);
+        applyBJAction(t, l.split ? 'split' : l.hit && handTotal(t.seats[t.turn!.seat]!.hands[t.turn!.hand]!.cards).total < 17 ? 'hit' : 'stand');
+      }
+      expect(t.phase).toBe('settled');
+    }
+  });
+});

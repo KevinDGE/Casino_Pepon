@@ -13,10 +13,10 @@ import { play } from '../../audio/sound';
 const PORTRAIT: [number, number][][] = [
   [],
   [[50, 9]],
-  [[17, 26], [83, 26]],
-  [[15, 30], [50, 8], [85, 30]],
-  [[15, 62], [22, 17], [78, 17], [85, 62]],
-  [[15, 64], [16, 30], [50, 8], [84, 30], [85, 64]],
+  [[18, 26], [82, 26]],
+  [[17, 30], [50, 8], [83, 30]],
+  [[17, 62], [22, 17], [78, 17], [83, 62]],
+  [[17, 64], [18, 30], [50, 8], [82, 30], [83, 64]],
 ];
 const LANDSCAPE: [number, number][][] = [
   [],
@@ -139,8 +139,9 @@ export function PokerTableView({ state, seats, thinking, landscape, onBoardRevea
         const isTurn = state.toAct === p.seat && state.phase === 'betting';
         const revealed = p.isHuman || (allShown && state.revealed.includes(p.seat));
         const label = lastActionLabel(state, p.seat);
-        const fx = p.isHuman ? 0 : landscape ? 0.36 : 0.4;
-        const fy = p.isHuman ? (landscape ? 0.62 : 0.44) : landscape ? 0.38 : 0.36;
+        const side = !p.isHuman && Math.abs(x - 50) > 20;
+        const fx = p.isHuman ? 0 : landscape ? 0.36 : side ? 0.42 : 0.4;
+        const fy = p.isHuman ? (landscape ? 0.62 : 0.44) : landscape ? 0.38 : side ? 0.55 : 0.36;
         const bx = x + (CENTER[0] - x) * fx;
         const by = y + (CENTER[1] - y) * fy;
         const won = result?.net[p.seat] ?? 0;

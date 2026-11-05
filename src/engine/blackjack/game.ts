@@ -3,7 +3,7 @@
  * Muta el estado recibido; la interfaz clona antes de aplicar acciones.
  */
 import type { Card } from '../../core/cards';
-import { type Rng, shuffleInPlace } from '../../core/rng';
+import { CryptoRng, type Rng, shuffleInPlace } from '../../core/rng';
 import { cardValue, handTotal, isBlackjack } from './hand';
 import type { BJAction, BJHand, BJLegal, BJSeat, BJState, BlackjackRules, HandOutcome } from './types';
 
@@ -52,7 +52,34 @@ export function reshuffle(state: BJState, rng: Rng): void {
   state.log.push({ t: 'shuffle' });
 }
 
+const emergencyRng = new CryptoRng();
+
+/** Cartas que están ahora mismo sobre la mesa (incluida la oculta del crupier). */
+function cardsOnTable(state: BJState): Card[] {
+  const out: Card[] = [...state.dealer];
+  for (const s of state.seats) for (const h of s.hands) out.push(...h.cards);
+  return out;
+}
+
+/**
+ * Si el zapato se agota a mitad de ronda (posible con 1 mazo y muchas divisiones),
+ * se barajan los descartes: todas las cartas excepto las que están en la mesa.
+ */
+function emergencyReshuffle(state: BJState): void {
+  const remaining = buildShoe(state.rules.decks);
+  for (const c of cardsOnTable(state)) {
+    const i = remaining.indexOf(c);
+    if (i >= 0) remaining.splice(i, 1);
+  }
+  state.shoe = shuffleInPlace(remaining, emergencyRng);
+  state.pos = 0;
+  state.cut = 0; // forzar barajado completo al terminar la ronda
+  state.seen = cardsOnTable(state).filter((c) => c !== state.dealer[1] || state.holeRevealed);
+  state.log.push({ t: 'shuffle' });
+}
+
 function draw(state: BJState): Card {
+  if (state.pos >= state.shoe.length) emergencyReshuffle(state);
   const c = state.shoe[state.pos++];
   if (c === undefined) throw new Error('Zapato agotado');
   return c;
@@ -80,8 +107,10 @@ export function startRound(state: BJState, bets: number[], rng: Rng, stackedShoe
     state.pos = 0;
     state.cut = state.shoe.length;
     state.seen = [];
-  } else if (state.pos >= state.cut) {
-    reshuffle(state, rng);
+  } else {
+    const players = bets.filter((b) => (b ?? 0) > 0).length;
+    // Barajar al pasar el corte o si quedan muy pocas cartas para una ronda completa.
+    if (state.pos >= state.cut || state.shoe.length - state.pos < 8 + 10 * players) reshuffle(state, rng);
   }
   state.round++;
   state.dealer = [];
