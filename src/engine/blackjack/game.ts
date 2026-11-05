@@ -413,3 +413,18 @@ export function visibleThisRound(state: BJState): Card[] {
 export function cardsRemaining(state: BJState): number {
   return state.shoe.length - state.pos;
 }
+
+/**
+ * Vista pública del estado para la IA y el coach: sin el orden del zapato y
+ * sin la carta oculta del crupier (mientras no se revele).
+ */
+export function blackjackView(state: BJState): BJState {
+  return {
+    ...structuredClone({ ...state, shoe: [] as Card[] }),
+    shoe: [],
+    pos: 0,
+    cut: 0,
+    dealer: state.holeRevealed ? state.dealer.slice() : state.dealer.slice(0, 1),
+    log: [],
+  };
+}

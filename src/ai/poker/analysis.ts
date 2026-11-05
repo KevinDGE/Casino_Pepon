@@ -79,6 +79,8 @@ export interface Analysis {
   preflopPct: number;
   /** Decisión preflop por tabla de apertura (sin EV detallado). */
   openChart: boolean;
+  /** Porcentaje de manos con que conviene abrir desde esta posición (si openChart). */
+  openPct: number;
 }
 
 export interface AnalyzeOptions {
@@ -467,6 +469,7 @@ export function analyze(view: PokerView, opts: AnalyzeOptions): Analysis {
 
   // Preflop primera entrada: tabla de apertura (más estable que el EV aproximado).
   let openChart = false;
+  let openPctOut = 0;
   if (view.street === 'preflop') {
     const raisesSoFar = view.actions.filter((a) => a.street === 'preflop' && (a.kind === 'raise' || a.kind === 'bet' || (a.kind === 'allin' && a.to > bb))).length;
     const effBB = effStack / bb;
@@ -487,9 +490,10 @@ export function analyze(view: PokerView, opts: AnalyzeOptions): Analysis {
       const limpers = view.actions.filter((a) => a.street === 'preflop' && a.kind === 'call').length;
       const openPct = clamp(baseOpenPct(behind, headsUp) * adj * style.looseness * (limpers ? 0.65 : 1), 0.05, 0.95);
       const inRange = preflopPct <= openPct;
+      openPctOut = openPct;
       // Ajustar EVs para que la elección refleje la tabla.
       for (const o of options) {
-        if (o.kind === 'raise' || o.kind === 'bet') o.ev = inRange ? bb * (1.2 + (openPct - preflopPct) * 4) : -bb;
+        if (o.kind === 'raise' || o.kind === 'bet') o.ev = inRange ? bb * (0.3 + (openPct - preflopPct) * 6) : -bb * (0.3 + (preflopPct - openPct) * 3);
         else if (o.kind === 'allin') o.ev = preflopPct < 0.015 && effBB < 30 ? bb * 3 : -bb * 2;
         else if (o.kind === 'call') o.ev = me.seat === view.sbSeat && preflopPct <= openPct * 1.15 && !inRange ? 0.1 * bb : -0.3 * bb;
         else if (o.kind === 'check') o.ev = inRange && preflopPct < openPct * 0.5 ? 0 : 0.5 * bb;
@@ -526,6 +530,7 @@ export function analyze(view: PokerView, opts: AnalyzeOptions): Analysis {
     })),
     preflopPct,
     openChart,
+    openPct: openPctOut,
   };
 }
 

@@ -34,8 +34,11 @@ export interface PokerAdvice {
   texture: string;
   reasons: string[];
   opponents: { name: string; style: string; width: number; vpip: number; hands: number }[];
-  /** Equity en mano a mano contra el rango más probable, para mostrar. */
   headline: string;
+  /** Preflop sin subidas previas: se decide con tabla de apertura (los EV son orientativos). */
+  openChart: boolean;
+  openPct: number;
+  handPct: number;
 }
 
 export function optionLabel(o: Pick<OptionEV, 'kind' | 'to' | 'added' | 'sizeFrac'>, toCall: number): string {
@@ -92,6 +95,9 @@ export function pokerAdvice(view: PokerView, models: ModelStore, rng: Rng, itera
     reasons,
     opponents: an.opponents.map((o) => ({ name: o.name, style: o.styleLabel, width: o.width, vpip: o.tendencies.vpip, hands: o.tendencies.hands })),
     headline,
+    openChart: an.openChart,
+    openPct: an.openPct,
+    handPct: an.preflopPct,
   };
 }
 
@@ -135,7 +141,10 @@ function explain(an: Analysis, rec: CoachOption, view: PokerView): string[] {
     if (view.street !== 'preflop' && an.texture.wetness >= 0.45) r.push('En tableros coordinados conviene apostar más grande para cobrar a los proyectos.');
   }
   if (best && best.kind === 'check' && an.equity > 0.55) r.push('Pasar aquí controla el tamaño del bote y deja que el rival apueste con manos peores.');
-  if (an.openChart && view.street === 'preflop') r.push('Antes del flop seguimos una tabla de apertura según tu posición y cuántos jugadores faltan por hablar.');
+  if (an.openChart && view.street === 'preflop') {
+    r.push(`Nadie ha subido todavía. Desde tu posición, con ${an.opponents.length} rival(es) en la mano, conviene abrir con el mejor ~${fmtPct(an.openPct)} de las manos; la tuya está en el ${fmtPct(Math.max(0.01, an.preflopPct))}.`);
+    r.push(an.preflopPct <= an.openPct ? 'Por eso conviene entrar subiendo (no sólo igualando): tomas la iniciativa y puedes ganar las ciegas de inmediato.' : 'Tu mano está fuera de ese rango: retirarte ahora no cuesta nada y evita problemas después.');
+  }
   const second = an.options.filter((o) => o !== best).sort((a, b) => b.ev - a.ev)[0];
   if (best && second && Math.abs(best.ev - second.ev) < 0.25 * bb) r.push('La diferencia con la segunda mejor opción es pequeña: ambas son aceptables.');
   return r;

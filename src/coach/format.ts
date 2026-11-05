@@ -8,3 +8,5 @@ export const fmtBB = (chips: number, bb: number): string => {
   const s = Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(1);
   return `${s.replace('-', '−')} BB`;
 };
+/** Fichas con un decimal cuando el monto es pequeño (valores esperados). */
+export const fmtChipsDec = (n: number): string => (Math.abs(n) < 10 && n !== Math.round(n) ? n.toFixed(1) : nf.format(Math.round(n)));

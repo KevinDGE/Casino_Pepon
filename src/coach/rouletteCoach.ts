@@ -3,7 +3,7 @@
  * Mensaje central: ninguna estrategia elimina la ventaja de la casa (2.70 %).
  */
 import { payoutFor, winProbability, type RouletteBet } from '../engine/roulette/roulette';
-import { fmtChips, fmtPct } from './format';
+import { fmtChips, fmtChipsDec, fmtPct } from './format';
 
 export const HOUSE_EDGE = 1 / 37;
 
@@ -45,7 +45,7 @@ export function rouletteAdvice(bets: readonly RouletteBet[]): RouletteAdvice {
   if (total === 0) {
     reasons.push('Coloca fichas en el paño. Cada apuesta muestra su probabilidad y su pago.');
   } else {
-    reasons.push(`Apostaste ${fmtChips(total)}. Pérdida esperada en este giro: ${fmtChips(total * HOUSE_EDGE)} fichas (2.70%).`);
+    reasons.push(`Apostaste ${fmtChips(total)}. Pérdida esperada en este giro: ${fmtChipsDec(total * HOUSE_EDGE)} fichas (2.70%).`);
     reasons.push(`Probabilidad de que gane alguna apuesta: ${fmtPct(pAny, 1)}; de terminar con ganancia: ${fmtPct(pProfit, 1)}.`);
     if (bets.length > 1) reasons.push('Cubrir más números sube la probabilidad de acertar, pero baja el pago: el valor esperado sigue siendo −2.70%.');
   }
