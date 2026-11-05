@@ -80,7 +80,7 @@ El **ranking diario, semanal y mensual** cuenta las fichas netas ganadas en todo
 - Un documento por persona (`ranking/<id>`), con un identificador opaco; los nombres se resuelven al mostrar.
 - Todos los que pueden abrir la página leen el ranking; cada quien escribe sólo su propio puntaje (regla `ranking/{self}`), y sólo el dueño puede moderar.
 - Para **aparecer** en el ranking hace falta acceso de **Colaborador** (o ser de la misma organización y entrar por enlace); con acceso de sólo lectura se ve el ranking pero no se publica el puntaje.
-- Fuera de claude.ai (build local u otro hosting) no hay ranking compartido: la pantalla muestra sólo tus propios resultados.
+- En GitHub Pages el ranking y las mesas en línea funcionan sobre Firebase (ver abajo). En cualquier otra build local u otro hosting no hay ranking compartido: la pantalla muestra sólo tus propios resultados.
 
 Para volver a publicar después de cambios:
 
@@ -96,7 +96,14 @@ y publica `dist-artifact/casino-pepon.html` con los archivos listados en `dist-a
 
 El flujo `.github/workflows/pages.yml` corre las pruebas unitarias, construye la PWA y la publica en **https://kevindge.github.io/Casino_Pepon/** en cada cambio a `main` (también se puede lanzar a mano desde *Actions → Publicar en GitHub Pages → Run workflow*). Sólo hay que activarlo una vez en *Settings → Pages → Build and deployment → Source: GitHub Actions*.
 
-Esa versión no necesita cuenta: abre en cualquier navegador, se instala como app y funciona sin conexión, con todos los juegos contra la IA. Las mesas en línea y el ranking compartido sólo existen en la versión de claude.ai.
+Esa versión no necesita cuenta: abre en cualquier navegador, se instala como app y funciona sin conexión, con todos los juegos contra la IA. Además tiene **ranking y póker en línea sobre Firebase**:
+
+- La build se hace con `VITE_BACKEND=firebase`; sólo entonces se carga (de forma diferida) el SDK de Firebase.
+- Cada navegador inicia una **sesión anónima** de Firebase (sin correo ni contraseña) y elige un **apodo** público.
+- Los datos viven en Firestore con el mismo modelo que en claude.ai: `ranking/<id>` y `mp/<id>`. Todos leen; cada quien escribe sólo su documento. Las reglas están en `firebase/firestore.rules` y validan tipos y tamaños.
+- `firebase/deploy.sh` publica reglas e índices, y `firebase/test-rules.py` prueba las reglas contra la API de Firebase. Ambos requieren `gcloud auth login`.
+- Requisito único en la consola de Firebase: *Authentication → Comenzar → Anónimo → Habilitar*.
+- El ranking de GitHub Pages y el de claude.ai son independientes: son bases de datos distintas.
 
 ### Otros hostings
 

@@ -27,6 +27,7 @@ export function RankingSync() {
   useEffect(() => {
     if (be === undefined) return;
     if (be === null) { setStatus('local'); return; }
+    if (!be.myId) { setStatus('readonly'); return; }
     if (readonly.current) return;
     if (payload === last.current) { if (status === 'checking') setStatus('synced'); return; }
     if (profile.ranking.dayRounds + profile.ranking.monthRounds === 0 && !last.current) { setStatus('synced'); last.current = payload; return; }

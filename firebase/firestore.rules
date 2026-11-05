@@ -1,0 +1,50 @@
+rules_version = '2';
+// Reglas de Casino Pepón (versión de GitHub Pages).
+// Todos leen; cada quien (sesión anónima de Firebase) escribe sólo su propio documento.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function okAlias(d) {
+      return !('alias' in d) || (d.alias is string && d.alias.size() <= 20);
+    }
+    function okInt(x, lo, hi) {
+      return x is int && x >= lo && x <= hi;
+    }
+
+    // Ranking: un documento por persona con sus fichas netas del día, semana y mes.
+    match /ranking/{uid} {
+      allow read: if true;
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['day', 'dayNet', 'dayRounds', 'week', 'weekNet', 'weekRounds', 'month', 'monthNet', 'monthRounds', 'v', 'updatedAt', 'alias'])
+        && request.resource.data.day is string && request.resource.data.day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.week is string && request.resource.data.week.matches('^[0-9]{4}-W[0-9]{2}$')
+        && request.resource.data.month is string && request.resource.data.month.matches('^[0-9]{4}-[0-9]{2}$')
+        && okInt(request.resource.data.dayNet, -100000000, 100000000)
+        && okInt(request.resource.data.weekNet, -100000000, 100000000)
+        && okInt(request.resource.data.monthNet, -100000000, 100000000)
+        && okInt(request.resource.data.dayRounds, 0, 1000000)
+        && okInt(request.resource.data.weekRounds, 0, 1000000)
+        && okInt(request.resource.data.monthRounds, 0, 1000000)
+        && okAlias(request.resource.data);
+    }
+
+    // Póker en línea: el documento de cada jugador con sus mensajes del protocolo.
+    match /mp/{uid} {
+      allow read: if true;
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.v == 1
+        && (!('table' in request.resource.data) || request.resource.data.table == null
+            || (request.resource.data.table is string && request.resource.data.table.size() <= 120))
+        && okAlias(request.resource.data);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

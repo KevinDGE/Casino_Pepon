@@ -76,6 +76,17 @@
 - **Privacidad y permisos:** se guarda sólo el identificador opaco de la persona (nunca nombre ni correo); todos leen, cada quien escribe sólo su documento, el dueño modera. Los datos de otras personas se tratan como no confiables (se validan como números).
 - **Build para claude.ai:** `npm run build:artifact` genera una versión sin service worker ni CSP propia (la plataforma sirve la página en su propio marco con su propia política) y con enrutamiento por hash simple (`#poker`), que es lo que conservan los enlaces de claude.ai.
 
+### Ranking y mesas en GitHub Pages: Firebase
+
+GitHub Pages sólo sirve archivos, así que la versión publicada ahí usa Firebase (Auth anónimo + Firestore) detrás de la misma interfaz `db`/`user` del Artifact. El ranking, el protocolo de póker mental y la UI no cambian.
+
+- **Sin cuentas:** la sesión anónima da un id estable por navegador; el nombre visible es un apodo opcional de hasta 20 caracteres.
+- **Reglas:** todos leen; cada quien escribe sólo `ranking/<uid>` y `mp/<uid>`; se validan campos, enteros y tamaños.
+- **Confianza:** el ranking sigue confiando en lo que publica cada navegador, igual que en claude.ai, porque las fichas son virtuales y no hay premios.
+- **Si la sesión falla:** el ranking queda en sólo lectura.
+- **Peso:** el SDK se carga sólo en esa build y por import dinámico (~165 kB gzip).
+- **CSP:** `connect-src` permite únicamente `firestore`, `identitytoolkit` y `securetoken` de googleapis.com.
+
 ## Coach y estadísticas
 
 - Póker: recomendación con equity, pot odds, EV por opción, outs, posición, SPR, textura y estilo del rival. Revisión: cada decisión se califica por la pérdida de EV frente a la mejor opción (acierto / imprecisión / error) y se etiqueta el tipo de error para "áreas de mejora".

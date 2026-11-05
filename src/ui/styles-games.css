@@ -326,3 +326,8 @@ html[data-motion='reduce'] .gold-text, html[data-motion='reduce'] .btn-gold::aft
 .online-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 10px rgba(251, 191, 36, 0.7); animation: dot 1.2s infinite; }
 .online-dot.turn { background: var(--good); box-shadow: 0 0 12px rgba(74, 222, 128, 0.8); }
 @media (max-width: 520px) { .online-table { grid-template-columns: 1fr auto; } .online-table .btn { grid-column: 1 / -1; } }
+
+/* Apodo público (versión de GitHub Pages) */
+.alias-row { display: flex; gap: 8px; align-items: center; }
+.alias-row .text-input { flex: 1 1 auto; min-width: 0; }
+.alias-row .btn { flex: 0 0 auto; }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Page } from '../components/Layout';
 import { Segmented } from '../components/Controls';
-import { useRanking, useMyTotals, useSyncStatus } from './useRanking';
+import { useBackend, useRanking, useMyTotals, useSyncStatus } from './useRanking';
+import { AliasEditor } from './AliasEditor';
 import { PERIOD_NAMES_ES, periodKeys, periodLabel, type PeriodKind } from '../../ranking/periods';
 import { fmtChips, fmtSignedChips } from '../../coach/format';
 
@@ -19,6 +20,8 @@ const MEDAL = ['🥇', '🥈', '🥉'];
 export function RankingScreen() {
   const [kind, setKind] = useState<PeriodKind>('week');
   const r = useRanking(kind);
+  const be = useBackend();
+  const firebase = be?.kind === 'firebase';
   const mine = useMyTotals();
   const sync = useSyncStatus();
   const key = periodKeys()[kind];
@@ -37,12 +40,19 @@ export function RankingScreen() {
         </div>
         <span className={`sync-pill sync-${sync}`} role="status">{STATUS_ES[sync]}</span>
       </section>
+      {be && firebase ? <AliasEditor be={be} /> : null}
       {r.mode === 'local' ? (
         <div className="notice">
           El ranking compartido funciona en la versión publicada en claude.ai. Aquí ves tus propios resultados; se guardan en este dispositivo.
         </div>
       ) : null}
-      {sync === 'readonly' ? <div className="notice">Tu acceso a este casino es de sólo lectura. Para aparecer en el ranking, pide a quien lo compartió acceso de colaborador.</div> : null}
+      {sync === 'readonly' ? (
+        <div className="notice">
+          {firebase
+            ? 'No se pudo iniciar tu sesión anónima, así que por ahora sólo puedes ver el ranking. Vuelve a abrir la página más tarde.'
+            : 'Tu acceso a este casino es de sólo lectura. Para aparecer en el ranking, pide a quien lo compartió acceso de colaborador.'}
+        </div>
+      ) : null}
       {r.mode === 'online' && r.error ? <div className="notice">No se pudo cargar el ranking ({r.error}). Vuelve a abrir la página más tarde.</div> : null}
       {r.stale ? <div className="notice">El ranking aún no responde; lo que ves puede estar desactualizado.</div> : null}
       {r.mode === 'loading' ? <p className="empty" role="status">Cargando ranking…</p> : null}
@@ -66,7 +76,9 @@ export function RankingScreen() {
           <li>Cuenta las <b>fichas netas</b> que ganas o pierdes en todos los juegos durante el día, la semana (lunes a domingo) o el mes, en hora de la Ciudad de México.</li>
           <li>Reiniciar tus fichas gratis no suma ni resta: sólo cuenta lo que pasa en las mesas.</li>
           <li>Son fichas virtuales sin valor: el ranking no da premios. Es sólo para presumir.</li>
-          <li>Aparecen las primeras 50 personas con al menos una ronda en el periodo. Sólo se guarda un identificador anónimo; tu nombre se muestra según tu cuenta.</li>
+          <li>Aparecen las primeras 50 personas con al menos una ronda en el periodo.{firebase
+            ? ' Sólo se guarda un identificador anónimo de este navegador y el apodo que elijas (si borras los datos del navegador, empiezas con un identificador nuevo).'
+            : ' Sólo se guarda un identificador anónimo; tu nombre se muestra según tu cuenta.'}</li>
         </ul>
       </section>
     </Page>
