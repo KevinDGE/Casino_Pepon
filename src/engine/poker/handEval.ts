@@ -37,8 +37,8 @@ export const CATEGORY_NAMES_ES = [
   'Escalera de color',
 ] as const;
 
-const STRAIGHT_HIGH = new Int8Array(8192);
-const POPCOUNT = new Uint8Array(8192);
+export const STRAIGHT_HIGH = new Int8Array(8192);
+export const POPCOUNT = new Uint8Array(8192);
 const TOP5 = new Int32Array(8192);
 /** Rango más alto presente en la máscara (-1 si vacía). */
 const HIGHEST = new Int8Array(8192);
