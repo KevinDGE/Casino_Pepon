@@ -7,6 +7,7 @@ import { TAG_TEXT, type PokerMistakeTag } from '../../coach/pokerCoach';
 import { BJ_TAG_TEXT, type BJTag } from '../../coach/blackjackCoach';
 import { BET_NAMES_ES, colorOf, type BetKind } from '../../engine/roulette/roulette';
 import { GAMES } from '../games';
+import { hrefFor } from '../router';
 
 type Tab = 'poker' | 'blackjack' | 'roulette' | 'mas';
 
@@ -63,7 +64,7 @@ export function Stats() {
   const tone = (n: number) => (n > 0 ? 'good' : n < 0 ? 'bad' : undefined);
   return (
     <Page current="stats" title="Estadísticas">
-      <p className="small"><a href="#/history">Ver historial de manos y rondas →</a></p>
+      <p className="small"><a href={hrefFor('history')}>Ver historial de manos y rondas →</a></p>
       <Segmented label="Juego" value={tab} onChange={setTab} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }, { value: 'mas', label: 'Más juegos' }]} />
       {tab === 'poker' ? (
         <>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Icon } from './Icon';
 import { LogoMark, Wordmark } from './Logo';
-import { navigate, type Route } from '../router';
+import { hrefFor, navigate, type Route } from '../router';
 import { useProfile } from '../store';
 import { fmtChips } from '../../coach/format';
 
@@ -34,7 +34,7 @@ export function TopBar({ title, back, right, current }: { title?: string; back?:
             <Icon name="back" />
           </button>
         ) : null}
-        <a className={`brand ${title ? 'brand-compact' : ''}`} href="#/" aria-label="Casino Pepón, inicio">
+        <a className={`brand ${title ? 'brand-compact' : ''}`} href={hrefFor('lobby')} aria-label="Casino Pepón, inicio">
           <LogoMark size={34} />
           {title ? null : <Wordmark />}
         </a>
@@ -42,7 +42,7 @@ export function TopBar({ title, back, right, current }: { title?: string; back?:
       </div>
       <nav className="topnav" aria-label="Principal">
         {NAV.map((n) => (
-          <a key={n.route} href={`#/${n.route === 'lobby' ? '' : n.route}`} className={current === n.route ? 'active' : ''} aria-current={current === n.route ? 'page' : undefined}>
+          <a key={n.route} href={hrefFor(n.route)} className={current === n.route ? 'active' : ''} aria-current={current === n.route ? 'page' : undefined}>
             {n.label}
           </a>
         ))}
@@ -59,7 +59,7 @@ export function BottomNav({ current }: { current: Route }) {
   return (
     <nav className="bottomnav" aria-label="Navegación">
       {NAV.filter((n) => n.mobile !== false).map((n) => (
-        <a key={n.route} href={`#/${n.route === 'lobby' ? '' : n.route}`} className={current === n.route ? 'active' : ''} aria-current={current === n.route ? 'page' : undefined}>
+        <a key={n.route} href={hrefFor(n.route)} className={current === n.route ? 'active' : ''} aria-current={current === n.route ? 'page' : undefined}>
           <Icon name={n.icon} />
           <span>{n.label === 'Cómo funciona' ? 'Reglas' : n.label}</span>
         </a>

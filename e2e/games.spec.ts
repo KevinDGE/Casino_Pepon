@@ -9,7 +9,7 @@ test.describe('Juegos adicionales', () => {
     await expect(page.locator('.game-card')).toHaveCount(2);
     await page.getByRole('radio', { name: /^Todos/ }).click();
     await page.getByRole('button', { name: /^Video póker:/ }).click();
-    await expect(page).toHaveURL(/#\/videopoker/);
+    await expect(page).toHaveURL(/#\/?videopoker/);
   });
 
   test('video póker: repartir, ver el coach exacto, conservar y cambiar', async ({ page }) => {

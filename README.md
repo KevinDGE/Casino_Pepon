@@ -62,6 +62,25 @@ y abre `http://localhost:4173`.
 
 Los resultados más recientes están en [`reports/REPORTE.md`](reports/REPORTE.md).
 
+## Jugar en línea y ranking
+
+La versión en línea está publicada como Artifact de claude.ai: **https://claude.ai/artifact/5LL37jdE1v1oMNnKG3sP5r**. Es privada por defecto; quien la publicó la comparte desde el menú *Compartir* de la página.
+
+El **ranking diario, semanal y mensual** cuenta las fichas netas ganadas en todos los juegos en cada periodo (hora de la Ciudad de México; semana de lunes a domingo). Reiniciar fichas no cuenta. Usa la base de datos compartida del Artifact:
+
+- Un documento por persona (`ranking/<id>`), con un identificador opaco; los nombres se resuelven al mostrar.
+- Todos los que pueden abrir la página leen el ranking; cada quien escribe sólo su propio puntaje (regla `ranking/{self}`), y sólo el dueño puede moderar.
+- Para **aparecer** en el ranking hace falta acceso de **Colaborador** (o ser de la misma organización y entrar por enlace); con acceso de sólo lectura se ve el ranking pero no se publica el puntaje.
+- Fuera de claude.ai (build local u otro hosting) no hay ranking compartido: la pantalla muestra sólo tus propios resultados.
+
+Para volver a publicar después de cambios:
+
+```bash
+npm run build:artifact
+```
+
+y publica `dist-artifact/casino-pepon.html` con los archivos listados en `dist-artifact/files.json` (capacidades `db` con las reglas de `src/ranking/online.ts` y `user` con alcance `profile`).
+
 ## Despliegue
 
 La app es estática: el contenido de `dist/` se puede servir desde cualquier hosting de archivos (GitHub Pages, Netlify, Cloudflare Pages, Vercel, un bucket S3, Nginx…). Se construye con rutas relativas (`base: './'`) y enrutamiento por hash, así que funciona también en subcarpetas.

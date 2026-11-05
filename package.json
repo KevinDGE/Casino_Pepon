@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:artifact": "tsc -b && vite build --mode artifact",
+    "build:artifact": "tsc -b && vite build --mode artifact && node scripts/artifact-page.mjs",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc -b",
     "test": "vitest run",

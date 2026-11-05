@@ -4,7 +4,7 @@ import { Icon } from '../components/Icon';
 import { GameArt } from '../components/Art';
 import { PlayingCard } from '../components/PlayingCard';
 import { ConfirmDialog } from '../components/Modal';
-import { navigate } from '../router';
+import { hrefFor, navigate } from '../router';
 import { useProfile } from '../store';
 import { fmtChips, fmtSignedChips } from '../../coach/format';
 import { useMyTotals } from '../ranking/useRanking';
@@ -90,17 +90,17 @@ export function Lobby() {
         <div className="info-card">
           <h2>Azar justo y verificable</h2>
           <p>Todo se baraja y se tira con <code>crypto.getRandomValues</code> y Fisher–Yates. Cada juego publica su RTP o ventaja de la casa exacta.</p>
-          <a href="#/how">Cómo funciona →</a>
+          <a href={hrefFor('how')}>Cómo funciona →</a>
         </div>
         <div className="info-card">
           <h2>Ranking diario, semanal y mensual</h2>
           <p>Esta semana llevas <b className={week > 0 ? 'good' : week < 0 ? 'bad' : ''}>{fmtSignedChips(week)}</b> fichas en {fmtChips(mine.weekRounds)} rondas. Compite con quienes juegan este casino en línea.</p>
-          <a href="#/ranking">Ver ranking →</a>
+          <a href={hrefFor('ranking')}>Ver ranking →</a>
         </div>
         <div className="info-card">
           <h2>Sin trampas de diseño</h2>
           <p>Sin dinero real, sin compras, sin giros automáticos ni “casi ganas”. Un premio menor que tu apuesta se muestra como pérdida.</p>
-          <a href="#/stats">Ver tus estadísticas →</a>
+          <a href={hrefFor('stats')}>Ver tus estadísticas →</a>
         </div>
       </section>
       <ConfirmDialog
