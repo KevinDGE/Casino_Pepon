@@ -8,6 +8,7 @@ import type { PokerView } from '../engine/poker/view';
 import { analyze, type Analysis, type OptionEV } from '../ai/poker/analysis';
 import type { ModelStore } from '../ai/poker/opponentModel';
 import { fmtBB, fmtChips, fmtPct } from './format';
+import { COMBO_CLASS, className, comboOf } from '../ai/poker/combos';
 
 export interface CoachOption {
   label: string;
@@ -106,7 +107,10 @@ function explain(an: Analysis, rec: CoachOption, view: PokerView): string[] {
   const bb = view.bigBlind;
   const eq = fmtPct(an.equity);
   if (view.street === 'preflop') {
-    r.push(`Tu mano (${an.handDesc.toLowerCase()}) está en el mejor ${fmtPct(Math.max(0.01, an.preflopPct))} de las manos iniciales.`);
+    const p = an.preflopPct;
+    const quality = p <= 0.08 ? 'muy fuerte' : p <= 0.2 ? 'fuerte' : p <= 0.45 ? 'jugable según la posición' : 'débil';
+    const cls = className(COMBO_CLASS[comboOf(view.hole[0]!, view.hole[1]!)]!);
+    r.push(`Tu mano (${cls}, ${an.handDesc.toLowerCase()}) es ${quality}: está en el top ${fmtPct(Math.max(0.01, p))} de las 1,326 combinaciones iniciales.`);
   } else {
     r.push(`Tienes ${an.handDesc.toLowerCase()}. ${an.texture.description}.`);
   }
@@ -164,7 +168,7 @@ export type PokerMistakeTag =
   | 'apuesta-mal-dimensionada';
 
 export const TAG_TEXT: Record<PokerMistakeTag, { title: string; tip: string }> = {
-  'pago-sin-odds': { title: 'Pagas sin las odds necesarias', tip: 'Antes de igualar compara tu equity con las pot odds. Si necesitas 33% y tienes 20%, retírate.' },
+  'pago-sin-odds': { title: 'Pagas sin las odds necesarias', tip: 'Antes de igualar compara tu equity con las pot odds: si tu probabilidad de ganar es menor que la que necesitas, retírate.' },
   'retiro-con-odds': { title: 'Te retiras con buenas odds', tip: 'Con apuestas pequeñas necesitas poca equity para pagar. No tires manos con proyectos o showdown value.' },
   'pasivo-con-mano-fuerte': { title: 'Juegas pasivo con manos fuertes', tip: 'Con manos fuertes apuesta o sube para cobrar valor; pasar deja fichas sobre la mesa.' },
   'farol-sin-fold-equity': { title: 'Faroles con poca probabilidad de éxito', tip: 'Farolea cuando el rival puede retirarse; contra jugadores que pagan mucho, apuesta por valor.' },
@@ -221,6 +225,7 @@ export function gradeDecision(advice: PokerAdvice, action: PokerAction): Decisio
     comment = `${streetName[advice.street]}: ${chosen.label.toLowerCase()} fue una buena decisión.`;
   } else {
     comment = `${streetName[advice.street]}: elegiste ${chosen.label.toLowerCase()} (EV ${fmtBB(chosen.evBB * bb, bb)}). Mejor: ${best.label.toLowerCase()} (EV ${fmtBB(best.evBB * bb, bb)}).`;
+    if (advice.toCall > 0 && (chosen.kind === 'call' || chosen.kind === 'fold')) comment += ` Tenías ${fmtPct(advice.equity)} de equity y necesitabas ${fmtPct(advice.potOdds)}.`;
     if (tags[0]) comment += ` ${TAG_TEXT[tags[0]].tip}`;
   }
   return { street: advice.street, chosen, best, evLossBB: loss, equity: advice.equity, potOdds: advice.potOdds, grade, tags, comment };

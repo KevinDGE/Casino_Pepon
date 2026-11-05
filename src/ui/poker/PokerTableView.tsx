@@ -115,7 +115,7 @@ export function PokerTableView({ state, seats, thinking, landscape, onBoardRevea
             </>
           )}
         </div>
-        <div className="board" role="group" aria-label={`Cartas comunitarias: ${board.length ? '' : 'ninguna'}`}>
+        <div className="board" role="group" aria-label={board.length ? 'Cartas comunitarias' : 'Cartas comunitarias: todavía ninguna'}>
           {[0, 1, 2, 3, 4].map((i) =>
             board[i] !== undefined ? (
               <PlayingCard key={`${state.handNumber}-${i}`} card={board[i]!} size="md" highlight={best.has(board[i]!)} dim={!!result?.showdown && !best.has(board[i]!)} animate={!reduced} />
@@ -151,6 +151,7 @@ export function PokerTableView({ state, seats, thinking, landscape, onBoardRevea
             <div
               className={`seat ${p.isHuman ? 'seat-human' : ''} ${isTurn ? 'seat-turn' : ''} ${p.folded && !p.out ? 'seat-folded' : ''} ${p.out ? 'seat-out' : ''} ${winners.has(p.seat) ? 'seat-win' : ''}`}
               style={{ left: `${x}%`, top: `${y}%` }}
+              role="group"
               aria-label={`${p.isHuman ? 'Tú' : p.name}${meta.level ? `, ${meta.level === 'expert' ? 'experto' : meta.level === 'advanced' ? 'avanzado' : meta.level === 'intermediate' ? 'intermedio' : 'principiante'}` : ''}, ${fmtChips(p.stack)} fichas${p.folded ? ', retirado' : ''}${isTurn ? ', en turno' : ''}`}
             >
               <div className={`seat-cards ${p.isHuman ? 'seat-cards-human' : ''}`}>

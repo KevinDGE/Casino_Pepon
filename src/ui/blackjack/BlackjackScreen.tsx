@@ -90,7 +90,11 @@ export function BlackjackScreen() {
   const dTotal = handTotal(dealerShown);
   const roundNet = s.phase === 'settled' ? human.hands.reduce((a, h) => a + h.net, 0) + human.insuranceNet : 0;
 
-  const addChip = (v: number) => bj.setBet(Math.min(MAX_BET, profile.chips, (s.phase === 'settled' && bj.bet === 0 ? 0 : bj.bet) + v));
+  const addChip = (v: number) => bj.setBet(Math.min(MAX_BET, profile.chips, bj.bet + v));
+  // Si el saldo baja de la apuesta elegida, ajustarla.
+  useEffect(() => {
+    if (betting && bj.bet > profile.chips) bj.setBet(Math.max(0, Math.min(profile.chips, MAX_BET)));
+  }, [betting, bj, profile.chips]);
 
   useHotkeys({
     h: () => legal?.hit && bj.act('hit'),
