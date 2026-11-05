@@ -80,10 +80,26 @@ export interface RouletteStats {
   numbers: number[];
 }
 
+/** Estadísticas comunes de los juegos de mesa y máquinas adicionales. */
+export interface ArcadeStats {
+  rounds: number;
+  wagered: number;
+  returned: number;
+  net: number;
+  biggestWin: number;
+  /** Decisiones revisadas por el coach (juegos con decisión). */
+  decisions: number;
+  good: number;
+  evLoss: number;
+}
+
+export const emptyArcadeStats = (): ArcadeStats => ({ rounds: 0, wagered: 0, returned: 0, net: 0, biggestWin: 0, decisions: 0, good: 0, evLoss: 0 });
+
 export interface Stats {
   poker: PokerStats;
   blackjack: BlackjackStats;
   roulette: RouletteStats;
+  arcade: Record<string, ArcadeStats>;
 }
 
 export const emptyPokerStats = (): PokerStats => ({
@@ -129,10 +145,20 @@ export interface RouletteHistoryEntry {
   net: number;
 }
 
+export interface ArcadeHistoryEntry {
+  id: string;
+  ts: number;
+  game: string;
+  summary: string;
+  wagered: number;
+  net: number;
+}
+
 export interface History {
   poker: PokerHistoryEntry[];
   blackjack: BlackjackHistoryEntry[];
   roulette: RouletteHistoryEntry[];
+  arcade: ArcadeHistoryEntry[];
 }
 
 export interface PokerSetup {
@@ -172,8 +198,8 @@ export function defaultProfile(): SavedProfile {
     chips: STARTING_CHIPS,
     resets: 0,
     settings: { ...DEFAULT_SETTINGS },
-    stats: { poker: emptyPokerStats(), blackjack: emptyBJStats(), roulette: emptyRouletteStats() },
-    history: { poker: [], blackjack: [], roulette: [] },
+    stats: { poker: emptyPokerStats(), blackjack: emptyBJStats(), roulette: emptyRouletteStats(), arcade: {} },
+    history: { poker: [], blackjack: [], roulette: [], arcade: [] },
     onboardingDone: false,
     tutorialsSeen: {},
     pokerSetup: { ...DEFAULT_POKER_SETUP },

@@ -69,3 +69,18 @@ export async function requestCoach(req: Extract<WorkerRequest, { type: 'pokerCoa
   if (r.type !== 'pokerCoach') throw new Error('Respuesta inesperada');
   return r.advice;
 }
+
+const math = new WorkerChannel();
+
+/** EV exacto de las 32 formas de conservar cartas en video póker (en el worker). */
+export async function requestVideoPokerEVs(hand: number[], royalPay: number): Promise<number[]> {
+  const r = await math.request({ type: 'vpEV', hand, royalPay });
+  if (r.type !== 'vpEV') throw new Error('Respuesta inesperada');
+  return r.evs;
+}
+
+export async function requestThreeCardEV(hand: number[]): Promise<{ play: number; fold: number }> {
+  const r = await math.request({ type: 'tcEV', hand });
+  if (r.type !== 'tcEV') throw new Error('Respuesta inesperada');
+  return { play: r.play, fold: r.fold };
+}

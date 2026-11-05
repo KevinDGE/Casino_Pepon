@@ -5,8 +5,9 @@ import { PlayingCard } from '../components/PlayingCard';
 import { useProfile } from '../store';
 import { fmtChips, fmtSignedChips } from '../../coach/format';
 import { colorOf } from '../../engine/roulette/roulette';
+import { gameName } from '../games';
 
-type Tab = 'poker' | 'blackjack' | 'roulette';
+type Tab = 'poker' | 'blackjack' | 'roulette' | 'mas';
 const OUTCOME_ES: Record<string, string> = { blackjack: 'Blackjack', win: 'Ganó', push: 'Empate', lose: 'Perdió', bust: 'Se pasó' };
 const GRADE_ES: Record<string, string> = { acierto: '✓', imprecision: '≈', error: '✗' };
 
@@ -19,7 +20,7 @@ export function History() {
   const h = profile.history;
   return (
     <Page current="history" title="Historial">
-      <Segmented label="Juego" value={tab} onChange={(v) => { setTab(v); setOpen(null); }} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }]} />
+      <Segmented label="Juego" value={tab} onChange={(v) => { setTab(v); setOpen(null); }} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }, { value: 'mas', label: 'Más juegos' }]} />
       <p className="muted small">Se guardan las últimas 100 entradas de cada juego en este dispositivo.</p>
       {tab === 'poker' && (h.poker.length ? (
         <ul className="hist-list">
@@ -85,6 +86,18 @@ export function History() {
           ))}
         </ul>
       ) : <p className="empty">Aún no has girado la ruleta.</p>)}
+      {tab === 'mas' && (h.arcade.length ? (
+        <ul className="hist-list">
+          {h.arcade.map((e) => (
+            <li key={e.id} className="hist-item">
+              <div className="hist-head">
+                <span className="hist-main"><b>{gameName(e.game)}</b><small>{e.summary} · {when(e.ts)}</small></span>
+                <span className={`hist-net ${e.net > 0 ? 'good' : e.net < 0 ? 'bad' : ''}`}>{fmtSignedChips(e.net)}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="empty">Aún no has jugado los demás juegos.</p>)}
     </Page>
   );
 }

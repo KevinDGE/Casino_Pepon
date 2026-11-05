@@ -55,6 +55,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       d.history.poker = d.history.poker.slice(0, HISTORY_LIMIT);
       d.history.blackjack = d.history.blackjack.slice(0, HISTORY_LIMIT);
       d.history.roulette = d.history.roulette.slice(0, HISTORY_LIMIT);
+      d.history.arcade = d.history.arcade.slice(0, HISTORY_LIMIT * 2);
       return d;
     });
   }, []);

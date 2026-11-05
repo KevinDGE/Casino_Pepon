@@ -64,8 +64,8 @@ export function Settings() {
       <ConfirmDialog open={ask === 'chips'} title="Reiniciar fichas" message={<p>Tus fichas volverán a {fmtChips(STARTING_CHIPS)}.</p>} confirmText="Reiniciar" onCancel={() => setAsk(null)} onConfirm={() => { resetChips(); setAsk(null); }} />
       <ConfirmDialog open={ask === 'stats'} title="Borrar estadísticas" message={<p>Se borrarán estadísticas e historial. Tus fichas y ajustes se conservan.</p>} confirmText="Borrar" danger onCancel={() => setAsk(null)} onConfirm={() => {
         update((d) => {
-          d.stats = { poker: emptyPokerStats(), blackjack: emptyBJStats(), roulette: emptyRouletteStats() };
-          d.history = { poker: [], blackjack: [], roulette: [] };
+          d.stats = { poker: emptyPokerStats(), blackjack: emptyBJStats(), roulette: emptyRouletteStats(), arcade: {} };
+          d.history = { poker: [], blackjack: [], roulette: [], arcade: [] };
         });
         setAsk(null);
       }} />

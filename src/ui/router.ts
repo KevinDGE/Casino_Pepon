@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 
-export type Route = 'lobby' | 'poker' | 'blackjack' | 'roulette' | 'stats' | 'history' | 'how' | 'settings';
-const ROUTES: Route[] = ['lobby', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings'];
+export type Route =
+  | 'lobby' | 'poker' | 'blackjack' | 'roulette' | 'stats' | 'history' | 'how' | 'settings'
+  | 'videopoker' | 'baccarat' | 'trescartas' | 'dados' | 'tragamonedas' | 'keno' | 'mayormenor';
+const ROUTES: Route[] = [
+  'lobby', 'poker', 'blackjack', 'roulette', 'stats', 'history', 'how', 'settings',
+  'videopoker', 'baccarat', 'trescartas', 'dados', 'tragamonedas', 'keno', 'mayormenor',
+];
 
 function parse(): { route: Route; sub: string } {
   const h = window.location.hash.replace(/^#\/?/, '');

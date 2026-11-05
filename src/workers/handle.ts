@@ -3,6 +3,8 @@ import { CryptoRng } from '../core/rng';
 import { decide } from '../ai/poker/bots';
 import { pokerAdvice } from '../coach/pokerCoach';
 import type { WorkerRequest, WorkerResponse } from './protocol';
+import { vpHoldEVs } from '../engine/videopoker/videopoker';
+import { tcPlayEV } from '../engine/threecard/threecard';
 
 const rng = new CryptoRng();
 
@@ -15,5 +17,11 @@ export function handleRequest(req: WorkerRequest): WorkerResponse {
     }
     case 'pokerCoach':
       return { type: 'pokerCoach', advice: pokerAdvice(req.view, req.models, rng, req.iterations) };
+    case 'vpEV':
+      return { type: 'vpEV', evs: Array.from(vpHoldEVs(req.hand, req.royalPay)) };
+    case 'tcEV': {
+      const r = tcPlayEV(req.hand);
+      return { type: 'tcEV', play: r.play, fold: r.fold };
+    }
   }
 }

@@ -14,6 +14,13 @@ import { navigate } from './router';
 const PokerScreen = lazy(() => import('./poker/PokerScreen').then((m) => ({ default: m.PokerScreen })));
 const BlackjackScreen = lazy(() => import('./blackjack/BlackjackScreen').then((m) => ({ default: m.BlackjackScreen })));
 const RouletteScreen = lazy(() => import('./roulette/RouletteScreen').then((m) => ({ default: m.RouletteScreen })));
+const VideoPokerScreen = lazy(() => import('./arcade/VideoPokerScreen').then((m) => ({ default: m.VideoPokerScreen })));
+const BaccaratScreen = lazy(() => import('./arcade/BaccaratScreen').then((m) => ({ default: m.BaccaratScreen })));
+const ThreeCardScreen = lazy(() => import('./arcade/ThreeCardScreen').then((m) => ({ default: m.ThreeCardScreen })));
+const DiceScreen = lazy(() => import('./arcade/DiceScreen').then((m) => ({ default: m.DiceScreen })));
+const SlotsScreen = lazy(() => import('./arcade/SlotsScreen').then((m) => ({ default: m.SlotsScreen })));
+const KenoScreen = lazy(() => import('./arcade/KenoScreen').then((m) => ({ default: m.KenoScreen })));
+const HiLoScreen = lazy(() => import('./arcade/HiLoScreen').then((m) => ({ default: m.HiLoScreen })));
 
 /** Recordatorio de pausa opcional, sin presión: sólo informa. */
 function BreakReminder() {
@@ -39,6 +46,8 @@ function Routes() {
   useEffect(() => {
     const titles: Record<string, string> = {
       lobby: 'Casino Pepón', poker: 'Póker · Casino Pepón', blackjack: 'Blackjack · Casino Pepón', roulette: 'Ruleta · Casino Pepón',
+      videopoker: 'Video póker · Casino Pepón', baccarat: 'Baccarat · Casino Pepón', trescartas: 'Póker de 3 cartas · Casino Pepón',
+      dados: 'Tres Dados · Casino Pepón', tragamonedas: 'Fiesta Pepona · Casino Pepón', keno: 'Keno · Casino Pepón', mayormenor: 'Mayor o Menor · Casino Pepón',
       stats: 'Estadísticas · Casino Pepón', history: 'Historial · Casino Pepón', how: 'Cómo funciona · Casino Pepón', settings: 'Ajustes · Casino Pepón',
     };
     document.title = titles[route] ?? 'Casino Pepón';
@@ -49,6 +58,13 @@ function Routes() {
     case 'poker': return <Suspense fallback={fallback}><PokerScreen /></Suspense>;
     case 'blackjack': return <Suspense fallback={fallback}><BlackjackScreen /></Suspense>;
     case 'roulette': return <Suspense fallback={fallback}><RouletteScreen /></Suspense>;
+    case 'videopoker': return <Suspense fallback={fallback}><VideoPokerScreen /></Suspense>;
+    case 'baccarat': return <Suspense fallback={fallback}><BaccaratScreen /></Suspense>;
+    case 'trescartas': return <Suspense fallback={fallback}><ThreeCardScreen /></Suspense>;
+    case 'dados': return <Suspense fallback={fallback}><DiceScreen /></Suspense>;
+    case 'tragamonedas': return <Suspense fallback={fallback}><SlotsScreen /></Suspense>;
+    case 'keno': return <Suspense fallback={fallback}><KenoScreen /></Suspense>;
+    case 'mayormenor': return <Suspense fallback={fallback}><HiLoScreen /></Suspense>;
     case 'stats': return <Stats />;
     case 'history': return <History />;
     case 'how': return <HowItWorks />;

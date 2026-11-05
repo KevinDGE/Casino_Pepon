@@ -4,6 +4,10 @@ import { cs } from './cardsHelper';
 import { estimateHouseEdge } from '../../engine/blackjack/houseEdge';
 import { useProfile } from '../store';
 import { fmtPct } from '../../coach/format';
+import { exactSlotsRTP } from '../../engine/slots/slots';
+import { kenoRTP } from '../../engine/keno/keno';
+import { diceStats } from '../../engine/dice/dice';
+import { BAC_HOUSE_EDGE } from '../../engine/baccarat/baccarat';
 
 const HANDS = [
   { name: 'Escalera real', ex: 'As Ks Qs Js Ts', five: 4, seven: 0.000032 },
@@ -124,6 +128,23 @@ export function HowItWorks() {
         <div className="callout">
           <b>No existe una estrategia que elimine la ventaja de la casa.</b> Todas las apuestas tienen el mismo valor esperado de −2.70%. Sistemas como la Martingala (doblar tras perder) sólo cambian la forma de las pérdidas: muchas ganancias pequeñas y, de vez en cuando, una pérdida enorme. Los resultados anteriores no influyen en el siguiente giro.
         </div>
+      </section>
+      <section className="panel" id="otros">
+        <h2 className="panel-title">Más juegos: reglas y números</h2>
+        <h3 className="sub-title">Video póker (Jotas o mejor 9/6)</h3>
+        <p>Recibes 5 cartas, conservas las que quieras y cambias las demás una vez. Paga desde pareja de jotas: doble pareja 2, trío 3, escalera 4, color 6, full 9, póker 25, escalera de color 50 y escalera real 800 por moneda con 5 monedas. Con estrategia perfecta el retorno es <b>99.54%</b>; el coach calcula el EV exacto de las 32 formas de conservar cartas.</p>
+        <h3 className="sub-title">Baccarat</h3>
+        <p>Punto y Banca reciben dos cartas; las figuras valen 0 y sólo cuenta la última cifra. Las terceras cartas siguen una tabla fija. Ventaja de la casa con 8 mazos: Banca {fmtPct(BAC_HOUSE_EDGE.banker, 2)}, Punto {fmtPct(BAC_HOUSE_EDGE.player, 2)}, Empate {fmtPct(BAC_HOUSE_EDGE.tie, 2)}, Parejas {fmtPct(BAC_HOUSE_EDGE.playerPair, 2)}.</p>
+        <h3 className="sub-title">Póker de 3 cartas</h3>
+        <p>Pones Ante (y opcionalmente Pair Plus), ves tus 3 cartas y decides Jugar (otra apuesta igual) o retirarte. El crupier califica con dama alta. Estrategia óptima: jugar con dama-6-4 o mejor. Ventaja de la casa: 3.37% del Ante; Pair Plus (1-3-6-30-40) 7.28%.</p>
+        <h3 className="sub-title">Tres Dados</h3>
+        <p>216 resultados equiprobables. Chico y Grande tienen ventaja de {fmtPct(-diceStats({ kind: 'small', value: [] }).ev, 2)}; un número único {fmtPct(-diceStats({ kind: 'single', value: [3] }).ev, 2)}; cualquier triple {fmtPct(-diceStats({ kind: 'anyTriple', value: [] }).ev, 2)}.</p>
+        <h3 className="sub-title">Fiesta Pepona (tragamonedas)</h3>
+        <p>3 carretes con tiras reales y paradas uniformes. RTP exacto <b>{fmtPct(exactSlotsRTP(5).rtp, 2)}</b>, calculado sobre todas las combinaciones. No hay giro automático ni “casi ganas” fabricados, y un premio menor que tu apuesta se muestra como pérdida.</p>
+        <h3 className="sub-title">Keno</h3>
+        <p>Eliges de 1 a 10 números de 80 y se sortean 20. RTP exacto según cuántos elijas: {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => `${n}: ${fmtPct(kenoRTP(n), 1)}`).join(' · ')}.</p>
+        <h3 className="sub-title">Mayor o Menor</h3>
+        <p>El pago de “mayor”, “menor” o “igual” se calcula con las cartas que quedan y una ventaja fija de 3% (redondeada a favor de la casa en centésimas).</p>
       </section>
     </Page>
   );

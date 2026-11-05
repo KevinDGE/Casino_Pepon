@@ -7,11 +7,15 @@ import type { PokerAdvice } from '../coach/pokerCoach';
 
 export type WorkerRequest =
   | { type: 'pokerBot'; view: PokerView; level: PokerLevel; style?: StyleParams; models: ModelStore; memory: BotMemory; iterations: number }
-  | { type: 'pokerCoach'; view: PokerView; models: ModelStore; iterations: number };
+  | { type: 'pokerCoach'; view: PokerView; models: ModelStore; iterations: number }
+  | { type: 'vpEV'; hand: number[]; royalPay: number }
+  | { type: 'tcEV'; hand: number[] };
 
 export type WorkerResponse =
   | { type: 'pokerBot'; action: PokerAction; memory: BotMemory }
-  | { type: 'pokerCoach'; advice: PokerAdvice };
+  | { type: 'pokerCoach'; advice: PokerAdvice }
+  | { type: 'vpEV'; evs: number[] }
+  | { type: 'tcEV'; play: number; fold: number };
 
 export interface Envelope<T> {
   id: number;

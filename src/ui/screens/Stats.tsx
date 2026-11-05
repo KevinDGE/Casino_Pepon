@@ -6,8 +6,9 @@ import { fmtChips, fmtPct, fmtSignedChips } from '../../coach/format';
 import { TAG_TEXT, type PokerMistakeTag } from '../../coach/pokerCoach';
 import { BJ_TAG_TEXT, type BJTag } from '../../coach/blackjackCoach';
 import { BET_NAMES_ES, colorOf, type BetKind } from '../../engine/roulette/roulette';
+import { GAMES } from '../games';
 
-type Tab = 'poker' | 'blackjack' | 'roulette';
+type Tab = 'poker' | 'blackjack' | 'roulette' | 'mas';
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: 'good' | 'bad' }) {
   return (
@@ -62,7 +63,7 @@ export function Stats() {
   const tone = (n: number) => (n > 0 ? 'good' : n < 0 ? 'bad' : undefined);
   return (
     <Page current="stats" title="Estadísticas">
-      <Segmented label="Juego" value={tab} onChange={setTab} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }]} />
+      <Segmented label="Juego" value={tab} onChange={setTab} options={[{ value: 'poker', label: 'Póker' }, { value: 'blackjack', label: 'Blackjack' }, { value: 'roulette', label: 'Ruleta' }, { value: 'mas', label: 'Más juegos' }]} />
       {tab === 'poker' ? (
         <>
           <section className="stat-grid">
@@ -146,6 +147,33 @@ export function Stats() {
             <p className="muted small">Los números “calientes” o “fríos” no predicen nada: cada giro es independiente.</p>
           </section>
         </>
+      ) : null}
+      {tab === 'mas' ? (
+        <section className="panel">
+          <h2 className="panel-title">Video póker, baccarat, dados, máquinas y más</h2>
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead><tr><th>Juego</th><th>Rondas</th><th>Apostado</th><th>Resultado</th><th>Retorno real</th><th>Teórico</th><th>Coach</th></tr></thead>
+              <tbody>
+                {GAMES.filter((g) => !['poker', 'blackjack', 'roulette'].includes(g.route)).map((g) => {
+                  const st = profile.stats.arcade[g.route];
+                  return (
+                    <tr key={g.route}>
+                      <td>{g.name}</td>
+                      <td>{st?.rounds ?? 0}</td>
+                      <td>{fmtChips(st?.wagered ?? 0)}</td>
+                      <td className={st && st.net > 0 ? 'good' : st && st.net < 0 ? 'bad' : ''}>{fmtSignedChips(st?.net ?? 0)}</td>
+                      <td>{st && st.wagered ? fmtPct(st.returned / st.wagered, 1) : '—'}</td>
+                      <td className="muted small">{g.edge}</td>
+                      <td>{st && st.decisions ? `${fmtPct(st.good / st.decisions)} óptimas` : '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="muted small">El retorno real varía mucho en pocas rondas (suerte). Con muchas rondas se acerca al teórico.</p>
+        </section>
       ) : null}
     </Page>
   );

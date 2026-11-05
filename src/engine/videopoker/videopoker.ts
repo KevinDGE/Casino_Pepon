@@ -55,6 +55,11 @@ export function vpDeal(rng: Rng, bet: number, deck?: Card[]): VPState {
 }
 
 /** `hold[i]` = conservar la carta i. */
+/** Pago por moneda: la escalera real paga 800 sólo con 5 monedas (250 con menos). */
+export function vpPayPerCoin(hand: VPHand, coins: number): number {
+  return hand === 'royal' && coins < 5 ? 250 : VP_PAYTABLE[hand];
+}
+
 export function vpDraw(state: VPState, hold: readonly boolean[]): VPState {
   if (state.phase !== 'draw') throw new Error('No es momento de cambiar cartas');
   const s: VPState = { ...state, hand: state.hand.slice() };
@@ -65,9 +70,9 @@ export function vpDraw(state: VPState, hold: readonly boolean[]): VPState {
   return s;
 }
 
-const PAY_BY_CAT = (s: number): number => {
+const payByCat = (s: number, royalPay: number): number => {
   const cat = s >> 20;
-  if (cat === 8) return ((s >> 16) & 15) === 12 ? 800 : 50;
+  if (cat === 8) return ((s >> 16) & 15) === 12 ? royalPay : 50;
   if (cat === 7) return 25;
   if (cat === 6) return 9;
   if (cat === 5) return 6;
@@ -83,7 +88,7 @@ const PAY_BY_CAT = (s: number): number => {
  * enumerando todos los reemplazos posibles con las 47 cartas restantes.
  * Índice = máscara de bits (bit i = conservar la carta i).
  */
-export function vpHoldEVs(hand: readonly Card[]): Float64Array {
+export function vpHoldEVs(hand: readonly Card[], royalPay = 800): Float64Array {
   const used = new Uint8Array(52);
   for (const c of hand) used[c] = 1;
   const rest: Card[] = [];
@@ -99,13 +104,13 @@ export function vpHoldEVs(hand: readonly Card[]): Float64Array {
     let total = 0;
     let count = 0;
     const base = held.length;
-    if (k === 0) { evs[mask] = PAY_BY_CAT(evaluate(h, 5)); continue; }
+    if (k === 0) { evs[mask] = payByCat(evaluate(h, 5), royalPay); continue; }
     // Enumeración de combinaciones de k cartas entre n.
     const idx = new Int32Array(k);
     for (let i = 0; i < k; i++) idx[i] = i;
     for (;;) {
       for (let i = 0; i < k; i++) h[base + i] = rest[idx[i]!]!;
-      total += PAY_BY_CAT(evaluate(h, 5));
+      total += payByCat(evaluate(h, 5), royalPay);
       count++;
       let p = k - 1;
       while (p >= 0 && idx[p] === n - k + p) p--;
